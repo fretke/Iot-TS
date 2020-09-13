@@ -1,17 +1,27 @@
 import React from "react";
+import { connect } from "react-redux";
+import { initializeUser } from "../../store/Actions/userActions";
+import Modal from "../Modal/Modal";
+import { storeState } from "../../store/Reducers/index";
 
-interface LogInState {
+export interface LogInState {
   email: string;
   pass: string;
 }
 
-class LogIn extends React.Component {
+interface LogInProps {
+  initializeUser(data: LogInState): Promise<void>;
+  user: any;
+}
+
+class LogIn extends React.Component<LogInProps> {
   state: LogInState = {
     email: "",
     pass: "",
   };
 
   logInUser = (): void => {
+    this.props.initializeUser(this.state);
     console.log("logging in");
   };
 
@@ -40,12 +50,18 @@ class LogIn extends React.Component {
           value={this.state.pass}
         />
         <button onClick={this.logInUser}>Log In</button>
-        {/* {props.user.errorMessage !== null && (
-        <Modal title={props.user.errorMessage} />
-      )} */}
+        {this.props.user.errorMessage !== null && (
+          <Modal title={this.props.user.errorMessage} />
+        )}
       </div>
     );
   }
 }
 
-export default LogIn;
+const mapStateToProps = (state: storeState) => {
+  return {
+    user: state.user,
+  };
+};
+
+export default connect(mapStateToProps, { initializeUser })(LogIn);

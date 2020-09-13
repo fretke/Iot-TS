@@ -1,0 +1,33 @@
+.ServoContainer {
+  width: 80%;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  background-color: #eeeeee;
+  border-radius: 10px;
+  border: 1px solid #393e46;
+  box-shadow: 0 1px 5px 1px #393e46;
+  text-align: center;
+  /* flex-wrap: wrap; */
+}
+.ServoContainer > div {
+  width: 50%;
+  align-self: center;
+  padding: 0 20px;
+}
+
+.SectionHeading {
+  text-align: center;
+}
+
+@media (max-width: 800px) {
+  .ServoContainer {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  .ServoContainer > div {
+    width: 90%;
+    align-self: center;
+    padding: 0 10px;
+  }
+}

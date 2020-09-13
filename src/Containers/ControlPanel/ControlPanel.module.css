@@ -1,0 +1,15 @@
+.AllControls {
+  width: 80%;
+  margin: 0 auto;
+}
+
+.AllControls > hr {
+  width: 80%;
+
+  margin: 40px auto;
+}
+
+.AllControls > h1,
+.AllControls > h2 {
+  text-align: center;
+}

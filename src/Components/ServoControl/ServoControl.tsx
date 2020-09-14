@@ -5,10 +5,10 @@ import Tooltip from "@material-ui/core/Tooltip";
 import PropTypes from "prop-types";
 import styles from "./ServoControl.module.css";
 
-import { storeState } from "../../store/Reducers";
+import { StoreState } from "../../store/Reducers";
 import { userReducerState } from "../../store/Reducers/userReducer";
 import { controlsState } from "../../store/Reducers/controlsReducer";
-import { updateServo, Property } from "../../store/Actions/controlsActions";
+import { updateServo, Property } from "../../store/Actions";
 import { SocketContext } from "../../Context/SocketContext";
 
 function ValueLabelComponent(props: any) {
@@ -133,7 +133,7 @@ class ServoControl extends React.Component<ServoControlProps> {
   }
 }
 
-const mapStateToProps = (state: storeState) => {
+const mapStateToProps = (state: StoreState) => {
   return {
     user: state.user,
     controls: state.controls,

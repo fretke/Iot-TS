@@ -1,12 +1,12 @@
 import React from "react";
 
 import { connect } from "react-redux";
-import { updateLED } from "../../store/Actions/controlsActions";
+import { updateLED } from "../../store/Actions";
 import Switch from "@material-ui/core/Switch";
 
 import styles from "./LightBulbControl.module.css";
 
-import { storeState } from "../../store/Reducers";
+import { StoreState } from "../../store/Reducers";
 import { userReducerState } from "../../store/Reducers/userReducer";
 import { controlsState } from "../../store/Reducers/controlsReducer";
 import { SocketContext } from "../../Context/SocketContext";
@@ -41,7 +41,7 @@ class LightBulbControl extends React.Component<LightBulbProps> {
   }
 }
 
-const mapStateToProps = (state: storeState) => {
+const mapStateToProps = (state: StoreState) => {
   return {
     user: state.user,
     controls: state.controls,

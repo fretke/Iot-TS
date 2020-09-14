@@ -1,8 +1,10 @@
 import React from "react";
 import { connect } from "react-redux";
-import { initializeUser } from "../../store/Actions/userActions";
+
+import { initializeUser } from "../../store/Actions";
+import { StoreState } from "../../store/Reducers/index";
+import { userReducerState } from "../../store/Reducers/userReducer";
 import Modal from "../Modal/Modal";
-import { storeState } from "../../store/Reducers/index";
 
 export interface LogInState {
   email: string;
@@ -11,7 +13,7 @@ export interface LogInState {
 
 interface LogInProps {
   initializeUser(data: LogInState): Promise<void>;
-  user: any;
+  user: userReducerState;
 }
 
 class LogIn extends React.Component<LogInProps> {
@@ -58,7 +60,7 @@ class LogIn extends React.Component<LogInProps> {
   }
 }
 
-const mapStateToProps = (state: storeState) => {
+const mapStateToProps = (state: StoreState) => {
   return {
     user: state.user,
   };

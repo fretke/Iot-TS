@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "./Modal.module.css";
 import { connect } from "react-redux";
-import { closeModal, closeModalAction } from "../../store/Actions/userActions";
+import { closeModal, closeModalAction } from "../../store/Actions";
 
 interface ModalProps {
   closeModal(): closeModalAction;

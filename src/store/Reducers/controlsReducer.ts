@@ -1,5 +1,5 @@
 import * as actionTypes from "../Actions/actionTypes";
-import { controlsActions } from "../Actions/controlsActions";
+import { controlsActions } from "../Actions";
 
 export interface servoData {
   name: string;

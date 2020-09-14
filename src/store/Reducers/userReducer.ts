@@ -1,6 +1,6 @@
 import * as actionTypes from "../Actions/actionTypes";
 
-import { userActionTypes } from "../Actions/userActions";
+import { userActionTypes } from "../Actions";
 
 export interface userReducerState {
   id: string;

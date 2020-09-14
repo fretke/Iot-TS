@@ -5,7 +5,7 @@ import styles from "./ControlPanel.module.css";
 import LightBulbControl from "../../Components/LightBulbControl/LightBulbControl";
 import ServoControl from "../../Components/ServoControl/ServoControl";
 
-import { storeState } from "../../store/Reducers";
+import { StoreState } from "../../store/Reducers";
 import { userReducerState } from "../../store/Reducers/userReducer";
 import { controlsState } from "../../store/Reducers/controlsReducer";
 
@@ -16,7 +16,7 @@ import {
   updateBulbAction,
   Property,
   updateServoAction,
-} from "../../store/Actions/controlsActions";
+} from "../../store/Actions";
 
 interface ControlPanelProps {
   user: userReducerState;
@@ -75,7 +75,7 @@ class ControlPanel extends React.Component<ControlPanelProps> {
   }
 }
 
-const mapStateToProps = (state: storeState) => {
+const mapStateToProps = (state: StoreState) => {
   return {
     user: state.user,
     controls: state.controls,

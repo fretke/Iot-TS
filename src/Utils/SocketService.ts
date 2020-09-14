@@ -1,8 +1,7 @@
 import io from "socket.io-client";
-import { connect } from "react-redux";
 import { SERVER } from "../Settings/settings";
 import { fromEvent, Observable } from "rxjs";
-import { Property } from "../store/Actions/controlsActions";
+import { Property } from "../store/Actions";
 
 export class SocketService {
   private socket: SocketIOClient.Socket = {} as SocketIOClient.Socket;

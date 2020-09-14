@@ -4,12 +4,12 @@ import { userReducerState } from "../Reducers/userReducer";
 import userReducer from "../Reducers/userReducer";
 import controlsReducer, { controlsState } from "../Reducers/controlsReducer";
 
-export interface storeState {
+export interface StoreState {
   user: userReducerState;
   controls: controlsState;
 }
 
-export default combineReducers({
+export default combineReducers<StoreState>({
   user: userReducer,
   controls: controlsReducer,
 });

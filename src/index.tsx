@@ -1,10 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
-
 import { createStore, applyMiddleware, compose } from "redux";
 import { Provider } from "react-redux";
 import thunk from "redux-thunk";
+
 import rootReducer from "./store/Reducers";
 import { SocketContext } from "./Context/SocketContext";
 import { SocketService } from "./Utils/SocketService";
@@ -26,7 +26,7 @@ const socket = new SocketService();
 ReactDOM.render(
   <Provider store={store}>
     <SocketContext.Provider value={socket}>
-      <App color="red" />
+      <App />
     </SocketContext.Provider>
   </Provider>,
   document.getElementById("root")

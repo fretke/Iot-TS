@@ -5,6 +5,7 @@ import { initializeUser } from "../../store/Actions";
 import { StoreState } from "../../store/Reducers/index";
 import { userReducerState } from "../../store/Reducers/userReducer";
 import Modal from "../Modal/Modal";
+import styles from "./LogIn.module.css";
 
 export interface LogInState {
   email: string;
@@ -37,24 +38,30 @@ class LogIn extends React.Component<LogInProps> {
 
   render() {
     return (
-      <div>
-        <h1>Log in Screen</h1>
-        <input
-          onChange={this.handleChange}
-          type="text"
-          name="email"
-          value={this.state.email}
-        />
-        <input
-          onChange={this.handleChange}
-          type="password"
-          name="pass"
-          value={this.state.pass}
-        />
-        <button onClick={this.logInUser}>Log In</button>
-        {this.props.user.errorMessage !== null && (
-          <Modal title={this.props.user.errorMessage} />
-        )}
+      <div className={styles.Image}>
+        <div className={styles.LogIn}>
+          <h1>Log in Screen</h1>
+          <p>Email</p>
+          <input
+            placeholder="enter e-mail"
+            onChange={this.handleChange}
+            type="text"
+            name="email"
+            value={this.state.email}
+          />
+          <p>Password</p>
+          <input
+            placeholder="enter password"
+            onChange={this.handleChange}
+            type="password"
+            name="pass"
+            value={this.state.pass}
+          />
+          <button onClick={this.logInUser}>Log In</button>
+          {this.props.user.errorMessage !== null && (
+            <Modal title={this.props.user.errorMessage} />
+          )}
+        </div>
       </div>
     );
   }

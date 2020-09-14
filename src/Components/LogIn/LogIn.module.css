@@ -1,0 +1,101 @@
+.Image {
+  background: url(./IoT_logIn_3.jpg);
+  height: 100vh;
+
+  /* Center and scale the image nicely */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.LogIn {
+  display: flex;
+  position: absolute;
+  top: 20px;
+  width: 300px;
+  height: 400px;
+  top: 50%;
+  left: 30%;
+  flex-direction: column;
+  justify-content: center;
+  transform: translate(-50%, -50%);
+  margin: 0 auto;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  border: 1px solid #393e46;
+  box-shadow: 0 1px 5px 1px #393e46;
+  text-align: center;
+}
+
+@media (max-width: 700px) {
+  .LogIn {
+    left: 50%;
+  }
+  .Image {
+    background: #4b2884;
+  }
+}
+.LogIn input {
+  width: 70%;
+  height: 40px;
+  margin: 10px auto;
+  border: none;
+  border-bottom: 1px solid white;
+  background: transparent;
+  outline: none;
+  color: #fff;
+}
+
+.LogIn input:isvalid {
+  background: transparent;
+}
+
+.LogIn button {
+  width: 20%;
+  margin: 10px auto;
+}
+.LogIn h1 {
+  color: #fff;
+  margin: 10px auto 40px;
+}
+
+.LogIn p {
+  text-align: left;
+  width: 50%;
+  margin: 0;
+  padding: 0;
+  margin-left: 40px;
+
+  color: white;
+}
+.LogIn button {
+  width: 70%;
+  height: 40px;
+  margin: 10px auto;
+  border: none;
+  color: #251442;
+  background-color: #0072bb;
+  font-weight: bold;
+}
+.LogIn button:hover {
+  background-color: #a48034;
+  color: #fff;
+}
+
+::placeholder {
+  /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: #fff;
+  opacity: 0.8; /* Firefox */
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 40px #251442 inset !important;
+}
+
+/*Change text in autofill textbox*/
+input:-webkit-autofill {
+  -webkit-text-fill-color: white !important;
+}

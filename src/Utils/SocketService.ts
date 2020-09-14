@@ -3,6 +3,16 @@ import { SERVER } from "../Settings/settings";
 import { fromEvent, Observable } from "rxjs";
 import { Property } from "../store/Actions";
 
+export interface ControllerResponse {
+  status: boolean;
+}
+
+export interface ServoMoveMessage {
+  servoName: string;
+  property: Property;
+  value: number;
+}
+
 export class SocketService {
   private socket: SocketIOClient.Socket = {} as SocketIOClient.Socket;
 
@@ -13,12 +23,24 @@ export class SocketService {
     });
     return this;
   }
+
+  public disconnect(): void {
+    this.socket.disconnect();
+  }
   public onLED(): Observable<any> {
     return fromEvent(this.socket, "led");
   }
 
-  public onServoMove(): Observable<any> {
+  public onServoMove(): Observable<ServoMoveMessage> {
     return fromEvent(this.socket, "Servo");
+  }
+
+  public onControllerResponse(): Observable<ControllerResponse> {
+    return fromEvent(this.socket, "controllerDone");
+  }
+
+  public onControllerStart(): Observable<void> {
+    return fromEvent(this.socket, "updateStarted");
   }
 
   public toggleLED(ledState: boolean): void {

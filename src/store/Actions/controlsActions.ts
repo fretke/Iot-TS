@@ -4,14 +4,21 @@ import { Dispatch } from "redux";
 import axios from "axios";
 import { initializeControlsAction } from "./userActions";
 
-export interface updateBulbAction {
+export interface UpdateBulbAction {
   type: typeof actionTypes.UPDATE_LED_STATE;
 }
-interface updateControlsStart {
+interface UpdateControlsStart {
   type: typeof actionTypes.UPDATE_CONTROLS_START;
 }
-interface updateControlsFinish {
+interface UpdateControlsFinish {
   type: typeof actionTypes.UPDATE_CONTROLS_FINISH;
+}
+export interface ControllerBussyStart {
+  type: typeof actionTypes.CONTROLLER_BUSY_START;
+}
+
+export interface ControllerBussyEnd {
+  type: typeof actionTypes.CONTROLLER_BUSY_END;
 }
 
 interface responseFromUpdate {
@@ -31,16 +38,18 @@ export interface updateServoAction {
 }
 
 export type controlsActions =
-  | updateBulbAction
-  | updateControlsStart
-  | updateControlsFinish
+  | UpdateBulbAction
+  | UpdateControlsStart
+  | UpdateControlsFinish
   | initializeControlsAction
-  | updateServoAction;
+  | updateServoAction
+  | ControllerBussyEnd
+  | ControllerBussyStart;
 
 export const updateLED = (state: boolean, userEmail: string, id: string) => {
   return async (dispatch: Dispatch) => {
     try {
-      dispatch<updateControlsStart>({
+      dispatch<UpdateControlsStart>({
         type: actionTypes.UPDATE_CONTROLS_START,
       });
       const res = await axios.post<responseFromUpdate>(`${SERVER}/updateBulb`, {
@@ -49,11 +58,11 @@ export const updateLED = (state: boolean, userEmail: string, id: string) => {
         id,
       });
       if (res.data.updated) {
-        dispatch<updateBulbAction>({
+        dispatch<UpdateBulbAction>({
           type: actionTypes.UPDATE_LED_STATE,
         });
       }
-      dispatch<updateControlsFinish>({
+      dispatch<UpdateControlsFinish>({
         type: actionTypes.UPDATE_CONTROLS_FINISH,
       });
     } catch (err) {
@@ -70,7 +79,7 @@ export const updateServo = (
   id: string
 ) => {
   return async (dispatch: Dispatch) => {
-    dispatch<updateControlsStart>({
+    dispatch<UpdateControlsStart>({
       type: actionTypes.UPDATE_CONTROLS_START,
     });
     try {
@@ -92,7 +101,7 @@ export const updateServo = (
           value,
         });
       }
-      dispatch<updateControlsFinish>({
+      dispatch<UpdateControlsFinish>({
         type: actionTypes.UPDATE_CONTROLS_FINISH,
       });
     } catch (err) {
@@ -101,7 +110,7 @@ export const updateServo = (
   };
 };
 
-export const toggleLED = (): updateBulbAction => {
+export const toggleLED = (): UpdateBulbAction => {
   return {
     type: actionTypes.UPDATE_LED_STATE,
   };
@@ -117,5 +126,17 @@ export const updateServoWS = (
     servoName,
     property,
     value,
+  };
+};
+
+export const controllerStart = (): ControllerBussyStart => {
+  return {
+    type: actionTypes.CONTROLLER_BUSY_START,
+  };
+};
+
+export const controllerFinish = (): ControllerBussyEnd => {
+  return {
+    type: actionTypes.CONTROLLER_BUSY_END,
   };
 };

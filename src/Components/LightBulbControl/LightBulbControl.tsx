@@ -1,7 +1,11 @@
 import React from "react";
 
 import { connect } from "react-redux";
-import { updateLED } from "../../store/Actions";
+import {
+  updateLED,
+  controllerStart,
+  ControllerBussyStart,
+} from "../../store/Actions";
 import Switch from "@material-ui/core/Switch";
 
 import styles from "./LightBulbControl.module.css";
@@ -15,10 +19,16 @@ interface LightBulbProps {
   controls: controlsState;
   user: userReducerState;
   updateLED(state: boolean, userEmail: string, id: string): Promise<void>;
+  controllerStart(): ControllerBussyStart;
 }
 
 class LightBulbControl extends React.Component<LightBulbProps> {
   static contextType = SocketContext;
+  buttonClickHandler = () => {
+    const { userEmail, id } = this.props.user;
+    this.context.toggleLED(!this.props.controls.ledIsOn);
+    this.props.updateLED(!this.props.controls.ledIsOn, userEmail, id);
+  };
   render() {
     const { userEmail, id } = this.props.user;
     return (
@@ -48,4 +58,6 @@ const mapStateToProps = (state: StoreState) => {
   };
 };
 
-export default connect(mapStateToProps, { updateLED })(LightBulbControl);
+export default connect(mapStateToProps, { updateLED, controllerStart })(
+  LightBulbControl
+);

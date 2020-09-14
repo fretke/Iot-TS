@@ -4,6 +4,7 @@ import styles from "./ControlPanel.module.css";
 
 import LightBulbControl from "../../Components/LightBulbControl/LightBulbControl";
 import ServoControl from "../../Components/ServoControl/ServoControl";
+import Spinner from "../../Components/Spinner/Spinner";
 
 import { StoreState } from "../../store/Reducers";
 import { userReducerState } from "../../store/Reducers/userReducer";
@@ -13,26 +14,31 @@ import { SocketContext } from "../../Context/SocketContext";
 import {
   toggleLED,
   updateServoWS,
-  updateBulbAction,
+  controllerFinish,
+  controllerStart,
+  ControllerBussyEnd,
+  ControllerBussyStart,
+  UpdateBulbAction,
   Property,
   updateServoAction,
 } from "../../store/Actions";
+import {
+  ControllerResponse,
+  ServoMoveMessage,
+} from "../../Utils/SocketService";
+import { dispatch } from "rxjs/internal/observable/pairs";
 
 interface ControlPanelProps {
   user: userReducerState;
   controls: controlsState;
-  toggleLED(): updateBulbAction;
+  toggleLED(): UpdateBulbAction;
   updateServoWS(
     servoName: string,
     property: Property,
     value: number
   ): updateServoAction;
-}
-
-interface IncomingMessage {
-  servoName: string;
-  property: Property;
-  value: number;
+  controllerFinish(): ControllerBussyEnd;
+  controllerStart(): ControllerBussyStart;
 }
 
 class ControlPanel extends React.Component<ControlPanelProps> {
@@ -44,9 +50,25 @@ class ControlPanel extends React.Component<ControlPanelProps> {
       this.props.toggleLED();
     });
     const servoMessage = this.context.onServoMove();
-    servoMessage.subscribe((m: IncomingMessage) => {
+    servoMessage.subscribe((m: ServoMoveMessage) => {
       this.props.updateServoWS(m.servoName, m.property, m.value);
     });
+
+    const controllerFinish = this.context.onControllerResponse();
+    controllerFinish.subscribe((m: ControllerResponse) => {
+      this.props.controllerFinish();
+      console.log("controller finished task");
+    });
+
+    const controllerStart = this.context.onControllerStart();
+    controllerStart.subscribe((m: ControllerResponse) => {
+      this.props.controllerStart();
+      console.log("controller started task");
+    });
+  }
+
+  componentWillUnmount() {
+    this.context.disconnect();
   }
 
   render() {
@@ -69,7 +91,7 @@ class ControlPanel extends React.Component<ControlPanelProps> {
         <h2>Servo Motors</h2>
         <hr></hr>
         {allServoMotors}
-        {/* {this.props.controls.loading && <Spinner />} */}
+        {this.props.controls.controllerBussy && <Spinner />}
       </div>
     );
   }
@@ -82,6 +104,9 @@ const mapStateToProps = (state: StoreState) => {
   };
 };
 
-export default connect(mapStateToProps, { toggleLED, updateServoWS })(
-  ControlPanel
-);
+export default connect(mapStateToProps, {
+  toggleLED,
+  updateServoWS,
+  controllerFinish,
+  controllerStart,
+})(ControlPanel);

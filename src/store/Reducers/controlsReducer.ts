@@ -12,6 +12,7 @@ export interface controlsState {
   ledIsOn: boolean;
   servos: servoData[];
   loading: boolean;
+  controllerBussy: boolean;
 }
 
 const initialState: controlsState = {
@@ -19,6 +20,7 @@ const initialState: controlsState = {
   ledIsOn: false,
   servos: [],
   loading: false,
+  controllerBussy: false,
 };
 
 export default (state = initialState, action: controlsActions) => {
@@ -33,6 +35,7 @@ export default (state = initialState, action: controlsActions) => {
       return {
         ...state,
         loading: true,
+        controllerBussy: true,
       };
     case actionTypes.UPDATE_CONTROLS_FINISH:
       return {
@@ -58,6 +61,16 @@ export default (state = initialState, action: controlsActions) => {
         servos: updatedServos,
       };
     }
+    case actionTypes.CONTROLLER_BUSY_START:
+      return {
+        ...state,
+        controllerBussy: true,
+      };
+    case actionTypes.CONTROLLER_BUSY_END:
+      return {
+        ...state,
+        controllerBussy: false,
+      };
 
     default:
       return state;

@@ -8,7 +8,12 @@ import styles from "./ServoControl.module.css";
 import { StoreState } from "../../store/Reducers";
 import { userReducerState } from "../../store/Reducers/userReducer";
 import { controlsState } from "../../store/Reducers/controlsReducer";
-import { updateServo, Property } from "../../store/Actions";
+import {
+  updateServo,
+  Property,
+  ControllerBussyStart,
+  controllerStart,
+} from "../../store/Actions";
 import { SocketContext } from "../../Context/SocketContext";
 
 function ValueLabelComponent(props: any) {
@@ -56,6 +61,7 @@ interface ServoControlProps {
     userEmail: string,
     id: string
   ): Promise<void>;
+  controllerStart(): ControllerBussyStart;
 }
 
 class ServoControl extends React.Component<ServoControlProps> {
@@ -71,6 +77,7 @@ class ServoControl extends React.Component<ServoControlProps> {
     );
     // @ts-ignore
     this.context.moveServo(this.props.servoName, Property.pos, newPos);
+    // this.context.controllerStart();
   };
 
   handleSpeedSliderChange = (newValue: number | number[]): void => {
@@ -140,4 +147,6 @@ const mapStateToProps = (state: StoreState) => {
   };
 };
 
-export default connect(mapStateToProps, { updateServo })(ServoControl);
+export default connect(mapStateToProps, { updateServo, controllerStart })(
+  ServoControl
+);

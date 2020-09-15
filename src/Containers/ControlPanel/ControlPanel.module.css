@@ -13,3 +13,10 @@
 .AllControls > h2 {
   text-align: center;
 }
+
+.ServoMotorSection {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}

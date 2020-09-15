@@ -4,7 +4,6 @@ import { connect } from "react-redux";
 import {
   closeModal,
   closeModalAction,
-  closeControllerErrorModal,
   CloseControllerErrorModal,
 } from "../../store/Actions";
 

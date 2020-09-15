@@ -1,6 +1,6 @@
 .ServoContainer {
-  width: 80%;
-  margin: 0 auto;
+  width: 30%;
+  margin: 0 auto 20px;
   display: flex;
   justify-content: center;
   background-color: #eeeeee;
@@ -8,16 +8,28 @@
   border: 1px solid #393e46;
   box-shadow: 0 1px 5px 1px #393e46;
   text-align: center;
-  /* flex-wrap: wrap; */
+  flex-wrap: wrap;
+  box-sizing: border-box;
 }
 .ServoContainer > div {
-  width: 50%;
+  width: 70%;
   align-self: center;
   padding: 0 20px;
+  box-sizing: border-box;
+}
+
+.ServoContainer > section {
+  width: 30%;
+  align-self: center;
+  padding: 0 20px;
+  box-sizing: border-box;
 }
 
 .SectionHeading {
   text-align: center;
+  border-bottom: 1px solid #393e46;
+  padding-bottom: 20px;
+  width: 100%;
 }
 
 @media (max-width: 800px) {

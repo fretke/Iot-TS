@@ -1,5 +1,5 @@
 import React from "react";
-import { connect, useDispatch } from "react-redux";
+import { connect } from "react-redux";
 import styles from "./ControlPanel.module.css";
 
 import LightBulbControl from "../../Components/LightBulbControl/LightBulbControl";
@@ -31,7 +31,6 @@ import {
   ControllerResponse,
   ServoMoveMessage,
 } from "../../Utils/SocketService";
-import { dispatch } from "rxjs/internal/observable/pairs";
 
 interface ControlPanelProps {
   user: userReducerState;
@@ -117,7 +116,7 @@ class ControlPanel extends React.Component<ControlPanelProps> {
         <hr></hr>
         <h2>Servo Motors</h2>
         <hr></hr>
-        {allServoMotors}
+        <div className={styles.ServoMotorSection}>{allServoMotors}</div>
         {this.props.controls.controller.busy && <Spinner />}
         {this.props.controls.controller.error && (
           <Modal

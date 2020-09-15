@@ -33,7 +33,6 @@ class LightBulbControl extends React.Component<LightBulbProps> {
     this.props.updateLED(!this.props.controls.ledIsOn, userEmail, id);
   };
   render() {
-    const { userEmail, id } = this.props.user;
     return (
       <div className={styles.LightBulbSection}>
         <div>

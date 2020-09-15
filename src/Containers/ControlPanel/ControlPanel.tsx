@@ -5,6 +5,7 @@ import styles from "./ControlPanel.module.css";
 import LightBulbControl from "../../Components/LightBulbControl/LightBulbControl";
 import ServoControl from "../../Components/ServoControl/ServoControl";
 import Spinner from "../../Components/Spinner/Spinner";
+import Modal from "../../Components/Modal/Modal";
 
 import { StoreState } from "../../store/Reducers";
 import { userReducerState } from "../../store/Reducers/userReducer";
@@ -16,11 +17,15 @@ import {
   updateServoWS,
   controllerFinish,
   controllerStart,
+  setControllerError,
+  ControllerError,
   ControllerBussyEnd,
   ControllerBussyStart,
   UpdateBulbAction,
   Property,
   updateServoAction,
+  CloseControllerErrorModal,
+  closeControllerErrorModal,
 } from "../../store/Actions";
 import {
   ControllerResponse,
@@ -39,14 +44,25 @@ interface ControlPanelProps {
   ): updateServoAction;
   controllerFinish(): ControllerBussyEnd;
   controllerStart(): ControllerBussyStart;
+  setControllerError(m: string): ControllerError;
+  closeControllerErrorModal(): CloseControllerErrorModal;
+}
+
+interface ControlPanelState {
+  timer: NodeJS.Timeout | null;
 }
 
 class ControlPanel extends React.Component<ControlPanelProps> {
+  state: ControlPanelState = {
+    timer: null,
+  };
+
   static contextType = SocketContext;
+
   componentDidMount() {
     this.context.init(this.props.user.id);
     const ledMessage = this.context.onLED();
-    ledMessage.subscribe((message: any) => {
+    ledMessage.subscribe((message: string) => {
       this.props.toggleLED();
     });
     const servoMessage = this.context.onServoMove();
@@ -57,12 +73,19 @@ class ControlPanel extends React.Component<ControlPanelProps> {
     const controllerFinish = this.context.onControllerResponse();
     controllerFinish.subscribe((m: ControllerResponse) => {
       this.props.controllerFinish();
+      if (this.state.timer) clearTimeout(this.state.timer);
       console.log("controller finished task");
     });
 
     const controllerStart = this.context.onControllerStart();
     controllerStart.subscribe((m: ControllerResponse) => {
       this.props.controllerStart();
+      const timer = setTimeout(() => {
+        if (this.props.controls.controller.busy) {
+          this.props.setControllerError("Controller not connected");
+        }
+      }, 15000);
+      this.setState({ timer: timer });
       console.log("controller started task");
     });
   }
@@ -72,16 +95,20 @@ class ControlPanel extends React.Component<ControlPanelProps> {
   }
 
   render() {
-    const allServoMotors = this.props.controls.servos.map((servo, index) => {
-      return (
-        <ServoControl
-          key={index}
-          servoName={servo.name}
-          currentPos={servo.pos}
-          currentSpeed={servo.speed}
-        />
-      );
-    });
+    console.log("control panel rendering");
+
+    const allServoMotors = this.props.controls.servos.map(
+      (servo, index): JSX.Element => {
+        return (
+          <ServoControl
+            key={index}
+            servoName={servo.name}
+            currentPos={servo.pos}
+            currentSpeed={servo.speed}
+          />
+        );
+      }
+    );
     return (
       <div className={styles.AllControls}>
         <h1>All controls</h1>
@@ -91,7 +118,13 @@ class ControlPanel extends React.Component<ControlPanelProps> {
         <h2>Servo Motors</h2>
         <hr></hr>
         {allServoMotors}
-        {this.props.controls.controllerBussy && <Spinner />}
+        {this.props.controls.controller.busy && <Spinner />}
+        {this.props.controls.controller.error && (
+          <Modal
+            click={this.props.closeControllerErrorModal}
+            title={this.props.controls.controller.message}
+          />
+        )}
       </div>
     );
   }
@@ -109,4 +142,6 @@ export default connect(mapStateToProps, {
   updateServoWS,
   controllerFinish,
   controllerStart,
+  setControllerError,
+  closeControllerErrorModal,
 })(ControlPanel);

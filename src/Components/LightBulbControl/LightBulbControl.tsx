@@ -5,6 +5,8 @@ import {
   updateLED,
   controllerStart,
   ControllerBussyStart,
+  ControllerError,
+  setControllerError,
 } from "../../store/Actions";
 import Switch from "@material-ui/core/Switch";
 
@@ -20,6 +22,7 @@ interface LightBulbProps {
   user: userReducerState;
   updateLED(state: boolean, userEmail: string, id: string): Promise<void>;
   controllerStart(): ControllerBussyStart;
+  setControllerError(m: string): ControllerError;
 }
 
 class LightBulbControl extends React.Component<LightBulbProps> {
@@ -40,10 +43,7 @@ class LightBulbControl extends React.Component<LightBulbProps> {
           <Switch
             disabled={this.props.controls.loading}
             checked={this.props.controls.ledIsOn}
-            onChange={() => {
-              this.context.toggleLED(!this.props.controls.ledIsOn);
-              this.props.updateLED(!this.props.controls.ledIsOn, userEmail, id);
-            }}
+            onChange={this.buttonClickHandler}
           />
         </div>
       </div>
@@ -58,6 +58,8 @@ const mapStateToProps = (state: StoreState) => {
   };
 };
 
-export default connect(mapStateToProps, { updateLED, controllerStart })(
-  LightBulbControl
-);
+export default connect(mapStateToProps, {
+  updateLED,
+  controllerStart,
+  setControllerError,
+})(LightBulbControl);

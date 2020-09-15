@@ -1,7 +1,11 @@
 import React from "react";
 import { connect } from "react-redux";
 
-import { initializeUser } from "../../store/Actions";
+import {
+  initializeUser,
+  closeModal,
+  closeModalAction,
+} from "../../store/Actions";
 import { StoreState } from "../../store/Reducers/index";
 import { userReducerState } from "../../store/Reducers/userReducer";
 import Modal from "../Modal/Modal";
@@ -14,6 +18,7 @@ export interface LogInState {
 
 interface LogInProps {
   initializeUser(data: LogInState): Promise<void>;
+  closeModal(): closeModalAction;
   user: userReducerState;
 }
 
@@ -59,7 +64,10 @@ class LogIn extends React.Component<LogInProps> {
           />
           <button onClick={this.logInUser}>Log In</button>
           {this.props.user.errorMessage !== null && (
-            <Modal title={this.props.user.errorMessage} />
+            <Modal
+              click={this.props.closeModal}
+              title={this.props.user.errorMessage}
+            />
           )}
         </div>
       </div>
@@ -73,4 +81,4 @@ const mapStateToProps = (state: StoreState) => {
   };
 };
 
-export default connect(mapStateToProps, { initializeUser })(LogIn);
+export default connect(mapStateToProps, { initializeUser, closeModal })(LogIn);

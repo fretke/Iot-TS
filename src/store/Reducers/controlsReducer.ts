@@ -7,12 +7,20 @@ export interface servoData {
   speed: number;
 }
 
+export interface ControllerData {
+  error: boolean;
+  busy: boolean;
+  message: string;
+}
+
 export interface controlsState {
   initialized: boolean;
   ledIsOn: boolean;
   servos: servoData[];
   loading: boolean;
+  controller: ControllerData;
   controllerBussy: boolean;
+  // controllerError: boolean;
 }
 
 const initialState: controlsState = {
@@ -20,6 +28,11 @@ const initialState: controlsState = {
   ledIsOn: false,
   servos: [],
   loading: false,
+  controller: {
+    error: false,
+    busy: false,
+    message: "",
+  },
   controllerBussy: false,
 };
 
@@ -35,7 +48,11 @@ export default (state = initialState, action: controlsActions) => {
       return {
         ...state,
         loading: true,
-        controllerBussy: true,
+
+        controller: {
+          ...state.controller,
+          busy: true,
+        },
       };
     case actionTypes.UPDATE_CONTROLS_FINISH:
       return {
@@ -64,12 +81,36 @@ export default (state = initialState, action: controlsActions) => {
     case actionTypes.CONTROLLER_BUSY_START:
       return {
         ...state,
-        controllerBussy: true,
+        controller: {
+          ...state.controller,
+          busy: true,
+        },
       };
     case actionTypes.CONTROLLER_BUSY_END:
       return {
         ...state,
-        controllerBussy: false,
+        controller: {
+          ...state.controller,
+          busy: false,
+        },
+      };
+    case actionTypes.CONTROLLER_ERROR:
+      return {
+        ...state,
+        controller: {
+          busy: false,
+          error: true,
+          message: action.message,
+        },
+      };
+    case actionTypes.CONTROLLER_ERROR_MODAL_CLOSE:
+      return {
+        ...state,
+        controller: {
+          ...state.controller,
+          error: false,
+          message: "",
+        },
       };
 
     default:

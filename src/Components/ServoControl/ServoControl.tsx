@@ -13,6 +13,8 @@ import {
   Property,
   ControllerBussyStart,
   controllerStart,
+  ControllerError,
+  setControllerError,
 } from "../../store/Actions";
 import { SocketContext } from "../../Context/SocketContext";
 
@@ -62,45 +64,33 @@ interface ServoControlProps {
     id: string
   ): Promise<void>;
   controllerStart(): ControllerBussyStart;
+  setControllerError(m: string): ControllerError;
 }
 
 class ServoControl extends React.Component<ServoControlProps> {
   static contextType = SocketContext;
-  handleSliderChange = (newPos: number | number[]): void => {
+
+  handleSliderChange = (
+    newPos: number | number[],
+    parameter: Property
+  ): void => {
     this.props.updateServo(
       this.props.servoName,
-      Property.pos,
+      parameter,
       // @ts-ignore
       newPos,
       this.props.user.userEmail,
       this.props.user.id
     );
     // @ts-ignore
-    this.context.moveServo(this.props.servoName, Property.pos, newPos);
-    // this.context.controllerStart();
-  };
-
-  handleSpeedSliderChange = (newValue: number | number[]): void => {
-    this.props.updateServo(
-      this.props.servoName,
-      Property.speed,
-      // @ts-ignore
-      newValue,
-      this.props.user.userEmail,
-      this.props.user.id
-    );
-    // @ts-ignore
-    this.context.moveServo(this.props.servoName, Property.speed, newValue);
+    this.context.moveServo(this.props.servoName, parameter, newPos);
   };
 
   render() {
     return (
       <Fragment>
         <h3 className={styles.SectionHeading}>{this.props.servoName}</h3>
-        <div
-          // style={props.controls.loading && { pointerEvents: "none" }}
-          className={styles.ServoContainer}
-        >
+        <div className={styles.ServoContainer}>
           <div>
             <h4>Motor position</h4>
           </div>
@@ -113,7 +103,9 @@ class ServoControl extends React.Component<ServoControlProps> {
               max={180}
               step={5}
               marks={marks}
-              onChangeCommitted={(e, val) => this.handleSliderChange(val)}
+              onChangeCommitted={(e, val) =>
+                this.handleSliderChange(val, Property.pos)
+              }
               disabled={this.props.controls.loading}
             />
           </div>
@@ -130,7 +122,9 @@ class ServoControl extends React.Component<ServoControlProps> {
               max={100}
               step={1}
               marks={speedMarks}
-              onChangeCommitted={(e, val) => this.handleSpeedSliderChange(val)}
+              onChangeCommitted={(e, val) =>
+                this.handleSliderChange(val, Property.speed)
+              }
               disabled={this.props.controls.loading}
             />
           </div>
@@ -147,6 +141,8 @@ const mapStateToProps = (state: StoreState) => {
   };
 };
 
-export default connect(mapStateToProps, { updateServo, controllerStart })(
-  ServoControl
-);
+export default connect(mapStateToProps, {
+  updateServo,
+  controllerStart,
+  setControllerError,
+})(ServoControl);

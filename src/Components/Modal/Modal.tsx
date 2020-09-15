@@ -1,20 +1,33 @@
 import React from "react";
 import styles from "./Modal.module.css";
 import { connect } from "react-redux";
-import { closeModal, closeModalAction } from "../../store/Actions";
+import {
+  closeModal,
+  closeModalAction,
+  closeControllerErrorModal,
+  CloseControllerErrorModal,
+} from "../../store/Actions";
 
 interface ModalProps {
-  closeModal(): closeModalAction;
   title: string;
+  click(): closeModalAction | CloseControllerErrorModal;
 }
 
 const Modal = (props: ModalProps) => {
-  const handleModalClick = () => {
-    props.closeModal();
-  };
-
+  let scroll =
+    window.pageYOffset !== undefined
+      ? window.pageYOffset
+      : (document.documentElement || document.body.parentNode || document.body)
+          .scrollTop;
+  scroll = Math.floor(scroll);
+  const topOffset: string = scroll.toString() + "px";
+  let topPos = { top: topOffset };
   return (
-    <div onClick={handleModalClick} className={styles.ModalContainer}>
+    <div
+      style={topPos}
+      onClick={() => props.click()}
+      className={styles.ModalContainer}
+    >
       <div>{props.title}</div>
     </div>
   );

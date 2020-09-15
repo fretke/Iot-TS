@@ -21,6 +21,15 @@ export interface ControllerBussyEnd {
   type: typeof actionTypes.CONTROLLER_BUSY_END;
 }
 
+export interface ControllerError {
+  type: typeof actionTypes.CONTROLLER_ERROR;
+  message: string;
+}
+
+export interface CloseControllerErrorModal {
+  type: typeof actionTypes.CONTROLLER_ERROR_MODAL_CLOSE;
+}
+
 interface responseFromUpdate {
   updated: boolean;
 }
@@ -44,7 +53,9 @@ export type controlsActions =
   | initializeControlsAction
   | updateServoAction
   | ControllerBussyEnd
-  | ControllerBussyStart;
+  | ControllerBussyStart
+  | ControllerError
+  | CloseControllerErrorModal;
 
 export const updateLED = (state: boolean, userEmail: string, id: string) => {
   return async (dispatch: Dispatch) => {
@@ -138,5 +149,18 @@ export const controllerStart = (): ControllerBussyStart => {
 export const controllerFinish = (): ControllerBussyEnd => {
   return {
     type: actionTypes.CONTROLLER_BUSY_END,
+  };
+};
+
+export const setControllerError = (message: string): ControllerError => {
+  return {
+    type: actionTypes.CONTROLLER_ERROR,
+    message,
+  };
+};
+
+export const closeControllerErrorModal = (): CloseControllerErrorModal => {
+  return {
+    type: actionTypes.CONTROLLER_ERROR_MODAL_CLOSE,
   };
 };

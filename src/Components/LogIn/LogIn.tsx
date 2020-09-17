@@ -63,12 +63,6 @@ class LogIn extends React.Component<LogInProps> {
             value={this.state.pass}
           />
           <button onClick={this.logInUser}>Log In</button>
-          {this.props.user.errorMessage !== null && (
-            <Modal
-              click={this.props.closeModal}
-              title={this.props.user.errorMessage}
-            />
-          )}
         </div>
       </div>
     );

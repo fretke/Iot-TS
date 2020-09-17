@@ -6,10 +6,13 @@ import { userReducerState } from "./store/Reducers/userReducer";
 import { controlsState } from "./store/Reducers/controlsReducer";
 import LogIn from "./Components/LogIn/LogIn";
 import ControlPanel from "./Containers/ControlPanel/ControlPanel";
+import Modal from "./Components/Modal/Modal";
+import { closeModal, closeModalAction } from "./store/Actions";
 
 interface AppProps {
   user: userReducerState;
   controls: controlsState;
+  closeModal(): closeModalAction;
 }
 
 class App extends React.Component<AppProps> {
@@ -18,7 +21,15 @@ class App extends React.Component<AppProps> {
     return auth && this.props.controls.initialized ? (
       <ControlPanel />
     ) : (
-      <LogIn />
+      <React.Fragment>
+        <LogIn />
+        {this.props.user.errorMessage !== null && (
+          <Modal
+            click={this.props.closeModal}
+            title={this.props.user.errorMessage}
+          />
+        )}
+      </React.Fragment>
     );
   }
 }
@@ -30,4 +41,4 @@ const mapStateToProps = (state: StoreState) => {
   };
 };
 
-export default connect(mapStateToProps)(App);
+export default connect(mapStateToProps, { closeModal })(App);

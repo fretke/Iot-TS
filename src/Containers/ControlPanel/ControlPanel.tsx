@@ -94,6 +94,14 @@ class ControlPanel extends React.Component<ControlPanelProps> {
   }
 
   render() {
+    if (
+      this.props.controls.controller.busy ||
+      this.props.controls.controller.error
+    ) {
+      document.body.style.overflowY = "hidden";
+    } else {
+      document.body.style.overflowY = "auto";
+    }
     console.log("control panel rendering");
 
     const allServoMotors = this.props.controls.servos.map(

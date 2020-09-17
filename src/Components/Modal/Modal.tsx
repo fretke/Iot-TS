@@ -7,6 +7,8 @@ import {
   CloseControllerErrorModal,
 } from "../../store/Actions";
 
+import Alert from "@material-ui/lab/Alert";
+
 interface ModalProps {
   title: string;
   click(): closeModalAction | CloseControllerErrorModal;
@@ -27,7 +29,8 @@ const Modal = (props: ModalProps) => {
       onClick={() => props.click()}
       className={styles.ModalContainer}
     >
-      <div>{props.title}</div>
+      <Alert severity="error">{props.title}</Alert>
+      {/* <div>{props.title}</div> */}
     </div>
   );
 };

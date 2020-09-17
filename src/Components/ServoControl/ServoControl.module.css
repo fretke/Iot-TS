@@ -18,6 +18,10 @@
   box-sizing: border-box;
 }
 
+.ServoContainer hr {
+  display: block;
+}
+
 .ServoContainer > section {
   width: 30%;
   align-self: center;
@@ -27,8 +31,7 @@
 
 .SectionHeading {
   text-align: center;
-  border-bottom: 1px solid #393e46;
-  padding-bottom: 20px;
+  /* border-bottom: 1px solid #393e46; */
   width: 100%;
 }
 
@@ -41,5 +44,12 @@
     width: 90%;
     align-self: center;
     padding: 0 10px;
+  }
+  .SectionHeading {
+    margin: 10px 0;
+  }
+
+  .ServoContainer > section > h4:first-child {
+    margin: 5px 0;
   }
 }

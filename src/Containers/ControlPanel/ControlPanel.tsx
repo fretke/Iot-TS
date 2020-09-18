@@ -5,6 +5,7 @@ import styles from "./ControlPanel.module.css";
 import LightBulbControl from "../../Components/LightBulbControl/LightBulbControl";
 import ServoControl from "../../Components/ServoControl/ServoControl";
 import Spinner from "../../Components/Spinner/Spinner";
+import SeqPanel from "../../Components/SeqPanel/SeqPanel";
 import Modal from "../../Components/Modal/Modal";
 
 import { StoreState } from "../../store/Reducers";
@@ -83,7 +84,7 @@ class ControlPanel extends React.Component<ControlPanelProps> {
         if (this.props.controls.controller.busy) {
           this.props.setControllerError("Controller not connected");
         }
-      }, 15000);
+      }, 20000);
       this.setState({ timer: timer });
       console.log("controller started task");
     });
@@ -125,6 +126,7 @@ class ControlPanel extends React.Component<ControlPanelProps> {
         <h2>Servo Motors</h2>
         <hr></hr>
         <div className={styles.ServoMotorSection}>{allServoMotors}</div>
+        <SeqPanel />
         {this.props.controls.controller.busy && <Spinner />}
         {this.props.controls.controller.error && (
           <Modal

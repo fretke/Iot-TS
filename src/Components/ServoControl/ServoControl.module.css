@@ -11,6 +11,10 @@
   flex-wrap: wrap;
   box-sizing: border-box;
 }
+.ServoContainer button {
+  display: inline-block;
+  width: 20%;
+}
 .ServoContainer > div {
   width: 70%;
   align-self: center;
@@ -31,8 +35,9 @@
 
 .SectionHeading {
   text-align: center;
+  display: inline-block;
   /* border-bottom: 1px solid #393e46; */
-  width: 100%;
+  width: 80%;
 }
 
 @media (max-width: 800px) {

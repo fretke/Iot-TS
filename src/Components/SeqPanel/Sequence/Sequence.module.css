@@ -1,4 +1,10 @@
 .MainTable {
-  width: 40%;
-  margin: 0 auto;
+  /* width: 40%;
+  margin: 0 auto; */
+  text-align: center;
+}
+
+.MainTable h3 {
+  display: inline-block;
+  width: auto;
 }

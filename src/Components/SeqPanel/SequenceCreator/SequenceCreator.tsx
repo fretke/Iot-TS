@@ -12,6 +12,8 @@ import TableRow from "@material-ui/core/TableRow";
 import SaveIcon from "@material-ui/icons/Save";
 import Button from "@material-ui/core/Button";
 import { saveNewSequence, SaveNewSequenceAction } from "../../../store/Actions";
+import { servoData } from "../../../store/Reducers/controlsReducer";
+import { userReducerState } from "../../../store/Reducers/userReducer";
 
 interface SequenceCreatorState {
   seqTitle: string;
@@ -19,7 +21,12 @@ interface SequenceCreatorState {
 
 interface SequenceCreatorProps {
   seq: seqState;
-  //   saveNewSequence(): SaveNewSequenceAction;
+  user: userReducerState;
+  saveNewSequence(
+    title: string,
+    moves: servoData[],
+    userEmail: string
+  ): Promise<void>;
 }
 
 class SequenceCreator extends React.Component<SequenceCreatorProps> {
@@ -31,7 +38,13 @@ class SequenceCreator extends React.Component<SequenceCreatorProps> {
     this.setState({ seqTitle: event.target.value });
   };
 
-  saveNewSequenceHandler = () => {};
+  saveNewSequenceHandler = () => {
+    this.props.saveNewSequence(
+      this.state.seqTitle,
+      this.props.seq.creationSeq,
+      this.props.user.userEmail
+    );
+  };
 
   render() {
     const currentSeq = this.props.seq.creationSeq.map((el, index) => {
@@ -74,7 +87,7 @@ class SequenceCreator extends React.Component<SequenceCreatorProps> {
           <TableBody>{currentSeq}</TableBody>
         </Table>
         <Button
-          // onClick={}
+          onClick={() => this.saveNewSequenceHandler()}
           variant="contained"
           color="primary"
           size="small"
@@ -91,7 +104,8 @@ class SequenceCreator extends React.Component<SequenceCreatorProps> {
 const mapStateToProps = (state: StoreState) => {
   return {
     seq: state.allSeq,
+    user: state.user,
   };
 };
 
-export default connect(mapStateToProps)(SequenceCreator);
+export default connect(mapStateToProps, { saveNewSequence })(SequenceCreator);

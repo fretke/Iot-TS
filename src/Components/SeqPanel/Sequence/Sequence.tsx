@@ -1,14 +1,21 @@
 import React from "react";
+import { connect } from "react-redux";
 import { withStyles } from "@material-ui/core/styles";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
-import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
-import Paper from "@material-ui/core/Paper";
+
+import IconButton from "@material-ui/core/IconButton";
+import PlayCircleOutlineIcon from "@material-ui/icons/PlayCircleOutline";
+import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
+import styles from "./Sequence.module.css";
 
 import { servoData } from "../../../store/Reducers/controlsReducer";
+import { deleteSequence } from "../../../store/Actions";
+import { StoreState } from "../../../store/Reducers";
+import { userReducerState } from "../../../store/Reducers/userReducer";
 
 const tableStyles = (theme: any) => ({
   table: {
@@ -20,13 +27,19 @@ const tableStyles = (theme: any) => ({
 });
 
 interface SequenceProps {
+  user: userReducerState;
   seqName: string;
   data: servoData[];
+  deleteSequence(title: string, userEmail: string): Promise<void>;
 }
 
 class Sequence extends React.Component<SequenceProps> {
   state = {
     showMore: false,
+  };
+
+  deleteSequenceHandler = () => {
+    this.props.deleteSequence(this.props.seqName, this.props.user.userEmail);
   };
 
   render() {
@@ -46,13 +59,23 @@ class Sequence extends React.Component<SequenceProps> {
     });
 
     return (
-      <div>
+      <div className={styles.MainTable}>
         <h3 onClick={() => this.setState({ showMore: !this.state.showMore })}>
           {this.props.seqName}
         </h3>
+        <IconButton aria-label="add" color="primary">
+          <PlayCircleOutlineIcon />
+        </IconButton>
+        <IconButton
+          onClick={() => this.deleteSequenceHandler()}
+          aria-label="add"
+          color="secondary"
+        >
+          <DeleteForeverIcon />
+        </IconButton>
         {this.state.showMore && (
           <Table
-            className={classes.table}
+            // className={classes.table}
             size="small"
             aria-label="a dense table"
           >
@@ -72,4 +95,10 @@ class Sequence extends React.Component<SequenceProps> {
   }
 }
 
-export default withStyles(tableStyles)(Sequence);
+const mapStateToProps = (state: StoreState) => {
+  return {
+    user: state.user,
+  };
+};
+
+export default connect(mapStateToProps, { deleteSequence })(Sequence);

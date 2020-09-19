@@ -45,6 +45,11 @@ const seqReducerState: seqState = {
 
 export default (state = seqReducerState, action: SeqActions) => {
   switch (action.type) {
+    case actionTypes.INITIALIZE_SEQUENCE:
+      return {
+        ...state,
+        seq: action.payload,
+      };
     case actionTypes.ADD_NEW_SEQUENCE_TOGGLE:
       return {
         ...state,
@@ -67,6 +72,15 @@ export default (state = seqReducerState, action: SeqActions) => {
         seq: newSeqArr,
         creationSeq: [],
         seqCreationModeOn: false,
+      };
+
+    case actionTypes.DELETE_SEQUENCE:
+      const updatedSeq = state.seq.filter((item) => {
+        return item.seqName !== action.payload;
+      });
+      return {
+        ...state,
+        seq: updatedSeq,
       };
 
     default:

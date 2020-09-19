@@ -21,9 +21,15 @@ interface dataFromServer {
 //   speed: number;
 // }
 
+interface SeqData {
+  seqName: string;
+  moves: servoData[];
+}
+
 interface controlData {
   ledIsOn: boolean;
   servos: servoData[];
+  seq: SeqData[];
 }
 
 interface initializeUserAction {
@@ -34,6 +40,11 @@ interface initializeUserAction {
 export interface initializeControlsAction {
   type: typeof actionTypes.INITIALIZE_CONTROLS;
   payload: controlData;
+}
+
+export interface InitializeSequenceAction {
+  type: typeof actionTypes.INITIALIZE_SEQUENCE;
+  payload: SeqData[];
 }
 
 interface initializeUserErrorAction {
@@ -70,6 +81,10 @@ export const initializeUser = (userData: LogInState) => {
         dispatch<initializeControlsAction>({
           type: actionTypes.INITIALIZE_CONTROLS,
           payload: res.data.IoT,
+        });
+        dispatch<InitializeSequenceAction>({
+          type: actionTypes.INITIALIZE_SEQUENCE,
+          payload: res.data.IoT.seq,
         });
       } else if (res.data.message) {
         dispatch<initializeUserErrorAction>({

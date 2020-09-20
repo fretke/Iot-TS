@@ -2,6 +2,7 @@ import io from "socket.io-client";
 import { SERVER } from "../Settings/settings";
 import { fromEvent, Observable } from "rxjs";
 import { Property } from "../store/Actions";
+import { servoData } from "../store/Reducers/controlsReducer";
 
 export interface ControllerResponse {
   status: boolean;
@@ -53,5 +54,9 @@ export class SocketService {
       property,
       value,
     });
+  }
+
+  public excecuteSequence(data: servoData[]) {
+    this.socket.emit("excecuteSequence", data);
   }
 }

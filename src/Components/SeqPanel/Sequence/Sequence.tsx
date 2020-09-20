@@ -17,6 +17,8 @@ import { deleteSequence } from "../../../store/Actions";
 import { StoreState } from "../../../store/Reducers";
 import { userReducerState } from "../../../store/Reducers/userReducer";
 
+import { SocketContext } from "../../../Context/SocketContext";
+
 const tableStyles = (theme: any) => ({
   table: {
     width: 400,
@@ -38,13 +40,17 @@ class Sequence extends React.Component<SequenceProps> {
     showMore: false,
   };
 
+  static contextType = SocketContext;
+
   deleteSequenceHandler = () => {
     this.props.deleteSequence(this.props.seqName, this.props.user.userEmail);
   };
 
-  render() {
-    const { classes } = this.props as any;
+  playSequence = () => {
+    this.context.excecuteSequence(this.props.data);
+  };
 
+  render() {
     const tableData = this.props.data.map((seq, index) => {
       return (
         <TableRow key={index + 1}>
@@ -63,7 +69,11 @@ class Sequence extends React.Component<SequenceProps> {
         <h3 onClick={() => this.setState({ showMore: !this.state.showMore })}>
           {this.props.seqName}
         </h3>
-        <IconButton aria-label="add" color="primary">
+        <IconButton
+          onClick={() => this.playSequence()}
+          aria-label="add"
+          color="primary"
+        >
           <PlayCircleOutlineIcon />
         </IconButton>
         <IconButton

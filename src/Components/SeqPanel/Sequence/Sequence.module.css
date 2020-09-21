@@ -1,10 +1,24 @@
 .MainTable {
-  /* width: 40%;
-  margin: 0 auto; */
+  width: 40%;
+  margin: 0 auto;
   text-align: center;
+}
+
+.MainTable table {
+  width: 100%;
+}
+
+@media (max-width: 700px) {
+  .MainTable {
+    width: 100%;
+    /* text-align: center; */
+  }
+  .MainTable table {
+    display: none;
+  }
 }
 
 .MainTable h3 {
   display: inline-block;
-  width: auto;
+  /* width: auto; */
 }

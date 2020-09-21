@@ -21,9 +21,9 @@ import { SocketContext } from "../../../Context/SocketContext";
 
 const tableStyles = (theme: any) => ({
   table: {
-    width: 400,
+    width: 600,
     borderRadius: 3,
-    margin: "auto",
+    margin: "0 auto",
     // textAlign: "center"
   },
 });
@@ -51,6 +51,7 @@ class Sequence extends React.Component<SequenceProps> {
   };
 
   render() {
+    const { classes } = this.props as any;
     const tableData = this.props.data.map((seq, index) => {
       return (
         <TableRow key={index + 1}>
@@ -111,4 +112,6 @@ const mapStateToProps = (state: StoreState) => {
   };
 };
 
-export default connect(mapStateToProps, { deleteSequence })(Sequence);
+export default withStyles(tableStyles)(
+  connect(mapStateToProps, { deleteSequence })(Sequence)
+);

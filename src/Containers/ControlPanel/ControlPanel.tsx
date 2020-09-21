@@ -10,12 +10,14 @@ import Modal from "../../Components/Modal/Modal";
 
 import { StoreState } from "../../store/Reducers";
 import { userReducerState } from "../../store/Reducers/userReducer";
-import { controlsState } from "../../store/Reducers/controlsReducer";
+import { controlsState, servoData } from "../../store/Reducers/controlsReducer";
 
 import { SocketContext } from "../../Context/SocketContext";
 import {
   toggleLED,
   updateServoWS,
+  updateServoAfterSeq,
+  UpdateServoAfterSeqAction,
   controllerFinish,
   controllerStart,
   setControllerError,
@@ -46,6 +48,7 @@ interface ControlPanelProps {
   controllerStart(): ControllerBussyStart;
   setControllerError(m: string): ControllerError;
   closeControllerErrorModal(): CloseControllerErrorModal;
+  updateServoAfterSeq(data: servoData[]): UpdateServoAfterSeqAction;
 }
 
 interface ControlPanelState {
@@ -73,6 +76,10 @@ class ControlPanel extends React.Component<ControlPanelProps> {
     const controllerFinish = this.context.onControllerResponse();
     controllerFinish.subscribe((m: ControllerResponse) => {
       this.props.controllerFinish();
+      if (m.data) {
+        console.log(m.data, "additional data");
+        this.props.updateServoAfterSeq(m.data);
+      }
       if (this.state.timer) clearTimeout(this.state.timer);
       console.log("controller finished task");
     });
@@ -89,6 +96,13 @@ class ControlPanel extends React.Component<ControlPanelProps> {
       console.log("controller started task");
     });
   }
+  // shouldComponentUpdate(
+  //   nextProps: ControlPanelProps,
+  //   nextState: ControlPanelState
+  // ) {
+  //   if (nextState.timer !== this.state.timer) return false;
+  //   return true;
+  // }
 
   componentWillUnmount() {
     this.context.disconnect();
@@ -103,7 +117,7 @@ class ControlPanel extends React.Component<ControlPanelProps> {
     } else {
       document.body.style.overflowY = "auto";
     }
-    console.log("control panel rendering");
+    // console.log("control panel rendering");
 
     const allServoMotors = this.props.controls.servos.map(
       (servo, index): JSX.Element => {
@@ -149,6 +163,7 @@ const mapStateToProps = (state: StoreState) => {
 export default connect(mapStateToProps, {
   toggleLED,
   updateServoWS,
+  updateServoAfterSeq,
   controllerFinish,
   controllerStart,
   setControllerError,

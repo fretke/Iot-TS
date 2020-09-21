@@ -1,0 +1,56 @@
+.Creator {
+  background: #eeeeee;
+  width: 60%;
+  margin: 20px auto;
+  border-radius: 20px;
+  /* position: absolute;
+  bottom: 0; */
+  border: 1px solid #393e46;
+  box-shadow: 0 1px 5px 1px #393e46;
+}
+
+.Creator table {
+  width: 80%;
+  margin: 0 auto;
+}
+.Creator label {
+  display: block;
+  margin: 5px auto;
+  text-align: center;
+}
+.Creator input {
+  display: block;
+
+  width: 20%;
+  height: 40px;
+  margin: 10px auto;
+  border: none;
+  border-bottom: 1px solid black;
+  background: transparent;
+  outline: none;
+  color: black;
+}
+.Creator button {
+  display: block;
+  width: 30%;
+  margin: 20px auto;
+}
+
+::placeholder {
+  /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: #838383;
+  opacity: 0.8; /* Firefox */
+}
+@media (max-width: 700px) {
+  .Creator {
+    width: 100%;
+  }
+  .Creator input {
+    width: 40%;
+    height: 30px;
+    margin: 10px auto;
+  }
+  .Creator button {
+    width: 50%;
+  }
+}

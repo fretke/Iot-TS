@@ -3,6 +3,7 @@ import { SERVER } from "../../Settings/settings";
 import { Dispatch } from "redux";
 import axios from "axios";
 import { initializeControlsAction } from "./userActions";
+import { servoData } from "../Reducers/controlsReducer";
 
 export interface UpdateBulbAction {
   type: typeof actionTypes.UPDATE_LED_STATE;
@@ -46,6 +47,11 @@ export interface updateServoAction {
   value: number;
 }
 
+export interface UpdateServoAfterSeqAction {
+  type: typeof actionTypes.UPDATE_SERVO_AFTER_SEQ;
+  payload: servoData[];
+}
+
 export type controlsActions =
   | UpdateBulbAction
   | UpdateControlsStart
@@ -55,7 +61,8 @@ export type controlsActions =
   | ControllerBussyEnd
   | ControllerBussyStart
   | ControllerError
-  | CloseControllerErrorModal;
+  | CloseControllerErrorModal
+  | UpdateServoAfterSeqAction;
 
 export const updateLED = (state: boolean, userEmail: string, id: string) => {
   return async (dispatch: Dispatch) => {
@@ -137,6 +144,15 @@ export const updateServoWS = (
     servoName,
     property,
     value,
+  };
+};
+
+export const updateServoAfterSeq = (
+  data: servoData[]
+): UpdateServoAfterSeqAction => {
+  return {
+    type: actionTypes.UPDATE_SERVO_AFTER_SEQ,
+    payload: data,
   };
 };
 

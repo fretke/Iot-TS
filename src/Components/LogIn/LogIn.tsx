@@ -8,7 +8,6 @@ import {
 } from "../../store/Actions";
 import { StoreState } from "../../store/Reducers/index";
 import { userReducerState } from "../../store/Reducers/userReducer";
-import Modal from "../Modal/Modal";
 import styles from "./LogIn.module.css";
 
 export interface LogInState {

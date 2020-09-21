@@ -8,10 +8,11 @@ import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 
+import styles from "./SequenceCreator.module.css";
 // import IconButton from "@material-ui/core/IconButton";
 import SaveIcon from "@material-ui/icons/Save";
 import Button from "@material-ui/core/Button";
-import { saveNewSequence, SaveNewSequenceAction } from "../../../store/Actions";
+import { saveNewSequence } from "../../../store/Actions";
 import { servoData } from "../../../store/Reducers/controlsReducer";
 import { userReducerState } from "../../../store/Reducers/userReducer";
 
@@ -53,35 +54,45 @@ class SequenceCreator extends React.Component<SequenceCreatorProps> {
           <TableCell component="th" scope="row">
             {index + 1}
           </TableCell>
-          <TableCell align="right">{el.name}</TableCell>
-          <TableCell align="right">{el.speed}</TableCell>
-          <TableCell align="right">{el.pos}</TableCell>
+          <TableCell style={{ minWidth: 50, maxWidth: 50 }} align="center">
+            {el.name}
+          </TableCell>
+          <TableCell align="center">{el.speed}</TableCell>
+          <TableCell align="center">{el.pos}</TableCell>
         </TableRow>
       );
     });
     return (
-      <div>
+      <div className={styles.Creator}>
         <div>
-          <label htmlFor="seqName">Enter Sequence Name</label>
+          {/* <label htmlFor="seqName">Enter Sequence Name</label> */}
           <input
             onChange={(e) => this.seqNameEnterHandler(e)}
             type="text"
             name="seqName"
             value={this.state.seqTitle}
             id="seqName"
+            placeholder="Sequence name"
           />
         </div>
+
         <Table
           //   className={classes.table}
           size="small"
           aria-label="a dense table"
         >
+          {/* <colgroup>
+            <col style={{ width: "20%" }} />
+            <col style={{ width: "10%" }} />
+            <col style={{ width: "60%" }} />
+            <col style={{ width: "10%" }} />
+          </colgroup> */}
           <TableHead>
             <TableRow>
-              <TableCell>Movement number</TableCell>
-              <TableCell align="right">Motor name</TableCell>
-              <TableCell align="right">Motor speed</TableCell>
-              <TableCell align="right">Motor position</TableCell>
+              <TableCell>No.:</TableCell>
+              <TableCell align="center">name</TableCell>
+              <TableCell align="center">speed</TableCell>
+              <TableCell align="center">position</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>{currentSeq}</TableBody>
@@ -92,7 +103,7 @@ class SequenceCreator extends React.Component<SequenceCreatorProps> {
           color="primary"
           size="small"
           // className={classes.button}
-          startIcon={<SaveIcon />}
+          // startIcon={<SaveIcon />}
         >
           Save Sequence
         </Button>

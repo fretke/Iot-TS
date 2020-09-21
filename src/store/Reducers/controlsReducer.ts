@@ -78,6 +78,21 @@ export default (state = initialState, action: controlsActions) => {
         servos: updatedServos,
       };
     }
+    case actionTypes.UPDATE_SERVO_AFTER_SEQ:
+      const updatedArr = [...state.servos];
+      action.payload.forEach((servo) => {
+        for (let i = 0; i < updatedArr.length; i++) {
+          if (servo.name === updatedArr[i].name) {
+            updatedArr[i].speed = servo.speed;
+            updatedArr[i].pos = servo.pos;
+            break;
+          }
+        }
+      });
+      return {
+        ...state,
+        servos: updatedArr,
+      };
     case actionTypes.CONTROLLER_BUSY_START:
       return {
         ...state,

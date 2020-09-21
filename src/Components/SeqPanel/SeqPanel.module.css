@@ -1,0 +1,9 @@
+.Panel {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  /* flex-grow: 5; */
+}
+.PanelButton {
+  text-align: center;
+}

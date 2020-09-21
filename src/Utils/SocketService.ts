@@ -6,6 +6,7 @@ import { servoData } from "../store/Reducers/controlsReducer";
 
 export interface ControllerResponse {
   status: boolean;
+  data: servoData[];
 }
 
 export interface ServoMoveMessage {

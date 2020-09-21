@@ -53,7 +53,7 @@ class ServoControl extends React.Component<ServoControlProps> {
   };
 
   render() {
-    console.log("<<<< servo controls render >>>>>");
+    // console.log("<<<< servo controls render >>>>>");
     return (
       <Fragment>
         <div className={styles.ServoContainer}>

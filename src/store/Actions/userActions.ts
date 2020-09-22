@@ -2,6 +2,7 @@ import * as actionTypes from "./actionTypes";
 import { SERVER } from "../../Settings/settings";
 import axios from "axios";
 import { Dispatch } from "redux";
+import Cookies from "universal-cookie";
 
 import { LogInState } from "../../Components/LogIn/LogIn";
 import { servoData } from "../Reducers/controlsReducer";
@@ -69,6 +70,9 @@ export const initializeUser = (userData: LogInState) => {
         userData,
       });
       if (res.data.auth) {
+        const cookies = new Cookies();
+        cookies.set("user", res.data.id);
+        // document.cookie = `user=${res.data.id}`;
         dispatch<initializeUserAction>({
           type: actionTypes.INITIALIZE_USER,
           payload: {

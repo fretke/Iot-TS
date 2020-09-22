@@ -12,6 +12,8 @@ import PlayCircleOutlineIcon from "@material-ui/icons/PlayCircleOutline";
 import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 import styles from "./Sequence.module.css";
 
+import CustomTable from "../../CustomTable/CustomTable";
+
 import { servoData } from "../../../store/Reducers/controlsReducer";
 import { deleteSequence } from "../../../store/Actions";
 import { StoreState } from "../../../store/Reducers";
@@ -51,20 +53,6 @@ class Sequence extends React.Component<SequenceProps> {
   };
 
   render() {
-    const { classes } = this.props as any;
-    const tableData = this.props.data.map((seq, index) => {
-      return (
-        <TableRow key={index + 1}>
-          <TableCell component="th" scope="row">
-            {index + 1}
-          </TableCell>
-          <TableCell align="right">{seq.name}</TableCell>
-          <TableCell align="right">{seq.speed}</TableCell>
-          <TableCell align="right">{seq.pos}</TableCell>
-        </TableRow>
-      );
-    });
-
     return (
       <div className={styles.MainTable}>
         <h3 onClick={() => this.setState({ showMore: !this.state.showMore })}>
@@ -84,23 +72,7 @@ class Sequence extends React.Component<SequenceProps> {
         >
           <DeleteForeverIcon />
         </IconButton>
-        {this.state.showMore && (
-          <Table
-            // className={classes.table}
-            size="small"
-            aria-label="a dense table"
-          >
-            <TableHead>
-              <TableRow>
-                <TableCell>Movement number</TableCell>
-                <TableCell align="right">Motor name</TableCell>
-                <TableCell align="right">Motor speed</TableCell>
-                <TableCell align="right">Motor position</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>{tableData}</TableBody>
-          </Table>
-        )}
+        {this.state.showMore && <CustomTable tableData={this.props.data} />}
       </div>
     );
   }

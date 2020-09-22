@@ -8,6 +8,7 @@ import LogIn from "./Components/LogIn/LogIn";
 import ControlPanel from "./Containers/ControlPanel/ControlPanel";
 import Modal from "./Components/Modal/Modal";
 import { closeModal, closeModalAction } from "./store/Actions";
+import Cookies from "universal-cookie";
 
 interface AppProps {
   user: userReducerState;
@@ -15,8 +16,11 @@ interface AppProps {
   closeModal(): closeModalAction;
 }
 
+const cookie = new Cookies();
+
 class App extends React.Component<AppProps> {
   render() {
+    console.log(cookie.get("user"), "<= kukis");
     const { auth } = this.props.user;
     return auth && this.props.controls.initialized ? (
       <ControlPanel />

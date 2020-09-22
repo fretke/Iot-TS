@@ -29,6 +29,7 @@ class LogIn extends React.Component<LogInProps> {
 
   logInUser = (): void => {
     this.props.initializeUser(this.state);
+
     console.log("logging in");
   };
 

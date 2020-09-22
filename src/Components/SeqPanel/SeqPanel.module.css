@@ -5,5 +5,14 @@
   /* flex-grow: 5; */
 }
 .PanelButton {
-  text-align: center;
+  /* text-align: center; */
+  border: none;
+  width: auto;
+  padding: 10px 20px;
+  margin: 0 auto;
+  cursor: pointer;
+  color: white;
+  background: #3c329b;
+  font-weight: bold;
+  border-radius: 5px;
 }

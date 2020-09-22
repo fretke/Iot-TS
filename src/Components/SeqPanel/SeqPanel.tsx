@@ -13,6 +13,7 @@ import {
 
 import IconButton from "@material-ui/core/IconButton";
 import AddIcon from "@material-ui/icons/Add";
+import BackspaceIcon from "@material-ui/icons/Backspace";
 
 interface SeqPanelProps {
   seq: seqState;
@@ -31,16 +32,15 @@ class SeqPanel extends React.Component<SeqPanelProps> {
     });
     return (
       <div className={styles.Panel}>
-        {allSequences}
-        <IconButton
+        <button
           className={styles.PanelButton}
           onClick={() => this.props.addNewSequenceToggle()}
-          aria-label="add"
-          color="primary"
         >
-          <AddIcon />
-        </IconButton>
+          {this.props.seq.seqCreationModeOn ? "Go Back" : "Add New"}
+        </button>
+
         {this.props.seq.seqCreationModeOn && <SequenceCreator />}
+        {allSequences}
       </div>
     );
   }

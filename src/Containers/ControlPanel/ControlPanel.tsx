@@ -140,6 +140,9 @@ class ControlPanel extends React.Component<ControlPanelProps> {
         <h2>Servo Motors</h2>
         <hr></hr>
         <div className={styles.ServoMotorSection}>{allServoMotors}</div>
+        <hr></hr>
+        <h2>Sequences</h2>
+        <hr></hr>
         <SeqPanel />
         {this.props.controls.controller.busy && <Spinner />}
         {this.props.controls.controller.error && (

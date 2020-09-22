@@ -1,17 +1,18 @@
 .Creator {
-  background: #eeeeee;
+  /* background: #eeeeee; */
   width: 60%;
   margin: 20px auto;
   border-radius: 20px;
   /* position: absolute;
   bottom: 0; */
   border: 1px solid #393e46;
-  box-shadow: 0 1px 5px 1px #393e46;
+  /* box-shadow: 0 1px 5px 1px #393e46; */
 }
 
 .Creator table {
   width: 80%;
   margin: 0 auto;
+  text-align: center;
 }
 .Creator label {
   display: block;

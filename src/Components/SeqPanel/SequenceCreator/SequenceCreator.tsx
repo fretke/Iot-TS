@@ -2,15 +2,11 @@ import React from "react";
 import { connect } from "react-redux";
 import { StoreState } from "../../../store/Reducers";
 import { seqState } from "../../../store/Reducers/sequenceReducer";
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import TableHead from "@material-ui/core/TableHead";
-import TableRow from "@material-ui/core/TableRow";
+
+import CustomTable from "../../CustomTable/CustomTable";
 
 import styles from "./SequenceCreator.module.css";
-// import IconButton from "@material-ui/core/IconButton";
-import SaveIcon from "@material-ui/icons/Save";
+
 import Button from "@material-ui/core/Button";
 import { saveNewSequence } from "../../../store/Actions";
 import { servoData } from "../../../store/Reducers/controlsReducer";
@@ -48,24 +44,9 @@ class SequenceCreator extends React.Component<SequenceCreatorProps> {
   };
 
   render() {
-    const currentSeq = this.props.seq.creationSeq.map((el, index) => {
-      return (
-        <TableRow key={index + 1}>
-          <TableCell component="th" scope="row">
-            {index + 1}
-          </TableCell>
-          <TableCell style={{ minWidth: 50, maxWidth: 50 }} align="center">
-            {el.name}
-          </TableCell>
-          <TableCell align="center">{el.speed}</TableCell>
-          <TableCell align="center">{el.pos}</TableCell>
-        </TableRow>
-      );
-    });
     return (
       <div className={styles.Creator}>
         <div>
-          {/* <label htmlFor="seqName">Enter Sequence Name</label> */}
           <input
             onChange={(e) => this.seqNameEnterHandler(e)}
             type="text"
@@ -75,35 +56,12 @@ class SequenceCreator extends React.Component<SequenceCreatorProps> {
             placeholder="Sequence name"
           />
         </div>
-
-        <Table
-          //   className={classes.table}
-          size="small"
-          aria-label="a dense table"
-        >
-          {/* <colgroup>
-            <col style={{ width: "20%" }} />
-            <col style={{ width: "10%" }} />
-            <col style={{ width: "60%" }} />
-            <col style={{ width: "10%" }} />
-          </colgroup> */}
-          <TableHead>
-            <TableRow>
-              <TableCell>No.:</TableCell>
-              <TableCell align="center">name</TableCell>
-              <TableCell align="center">speed</TableCell>
-              <TableCell align="center">position</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>{currentSeq}</TableBody>
-        </Table>
+        <CustomTable tableData={this.props.seq.creationSeq} />
         <Button
           onClick={() => this.saveNewSequenceHandler()}
           variant="contained"
           color="primary"
           size="small"
-          // className={classes.button}
-          // startIcon={<SaveIcon />}
         >
           Save Sequence
         </Button>

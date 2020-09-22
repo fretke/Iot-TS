@@ -1,0 +1,40 @@
+.CustomTable {
+  background-color: #eeeeee;
+  /* border: 1px solid black; */
+  border-radius: 20px;
+
+  border-collapse: collapse;
+  color: black;
+}
+.CustomTable tr {
+  /* border-spacing: 0;
+  border-collapse: collapse; */
+  border-bottom: 1px solid #838383;
+  padding: 20px;
+}
+
+.CustomTable > thead {
+  background-color: #84a9ac;
+}
+
+.CustomTable > thead > tr > th:first-child {
+  border-radius: 20px 0 0 0;
+}
+
+.CustomTable > thead > tr > th:last-child {
+  border-radius: 0 20px 0 0;
+}
+
+.CustomTable > tbody tr:nth-child(odd) {
+  background-color: #dddddd;
+}
+.CustomTable > tbody tr:last-child {
+  /* border-spacing: 0;
+    border-collapse: collapse; */
+  border-bottom: none;
+  padding: 20px;
+}
+.CustomTable td,
+.CustomTable th {
+  padding: 10px;
+}

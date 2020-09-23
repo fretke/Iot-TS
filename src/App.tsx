@@ -7,21 +7,31 @@ import { controlsState } from "./store/Reducers/controlsReducer";
 import LogIn from "./Components/LogIn/LogIn";
 import ControlPanel from "./Containers/ControlPanel/ControlPanel";
 import Modal from "./Components/Modal/Modal";
-import { closeModal, closeModalAction } from "./store/Actions";
+import Spinner from "./Components/Spinner/Spinner";
+import { closeModal, closeModalAction, logInUser } from "./store/Actions";
 import Cookies from "universal-cookie";
 
 interface AppProps {
   user: userReducerState;
   controls: controlsState;
   closeModal(): closeModalAction;
+  logInUser(id: string): Promise<void>;
 }
 
 const cookie = new Cookies();
 
 class App extends React.Component<AppProps> {
-  render() {
+  componentDidMount() {
     console.log(cookie.get("user"), "<= kukis");
+    if (cookie.get("user")) {
+      this.props.logInUser(cookie.get("user"));
+    }
+    console.log("before render");
+  }
+
+  render() {
     const { auth } = this.props.user;
+    if (cookie.get("user") && !auth) return <Spinner />;
     return auth && this.props.controls.initialized ? (
       <ControlPanel />
     ) : (
@@ -45,4 +55,4 @@ const mapStateToProps = (state: StoreState) => {
   };
 };
 
-export default connect(mapStateToProps, { closeModal })(App);
+export default connect(mapStateToProps, { closeModal, logInUser })(App);

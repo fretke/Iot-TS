@@ -72,7 +72,6 @@ export const initializeUser = (userData: LogInState) => {
       if (res.data.auth) {
         const cookies = new Cookies();
         cookies.set("user", res.data.id);
-        // document.cookie = `user=${res.data.id}`;
         dispatch<initializeUserAction>({
           type: actionTypes.INITIALIZE_USER,
           payload: {
@@ -98,6 +97,46 @@ export const initializeUser = (userData: LogInState) => {
       }
     } catch (err) {
       console.log(err, "error initializing user");
+    }
+  };
+};
+
+export const logInUser = (userId: string) => {
+  return async (dispatch: Dispatch) => {
+    try {
+      const res = await axios.post<dataFromServer>(
+        `${SERVER}/logInCookie`,
+        {
+          userId,
+        },
+        {
+          withCredentials: true,
+        }
+      );
+      if (res.data.auth) {
+        dispatch<initializeUserAction>({
+          type: actionTypes.INITIALIZE_USER,
+          payload: {
+            userName: res.data.userName,
+            userEmail: res.data.userEmail,
+            IoT: res.data.IoT,
+            id: res.data.id,
+          },
+        });
+        dispatch<initializeControlsAction>({
+          type: actionTypes.INITIALIZE_CONTROLS,
+          payload: res.data.IoT,
+        });
+        dispatch<InitializeSequenceAction>({
+          type: actionTypes.INITIALIZE_SEQUENCE,
+          payload: res.data.IoT.seq,
+        });
+      } else {
+        const cookies = new Cookies();
+        cookies.remove("user");
+      }
+    } catch (err) {
+      console.log("error while loggin user from cookie");
     }
   };
 };

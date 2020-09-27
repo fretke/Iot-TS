@@ -30,16 +30,31 @@ class SeqPanel extends React.Component<SeqPanelProps> {
     const allSequences = this.props.seq.seq.map((item, index) => {
       return <Sequence key={index} seqName={item.seqName} data={item.moves} />;
     });
+    let panelStyle = null;
+    let divStyle = null;
+    let buttonStyle = null;
+    if (this.props.seq.seqCreationModeOn) {
+      panelStyle = styles.Panel;
+      divStyle = styles.CreatorFixed;
+      buttonStyle = styles.ButtonFixed;
+    } else {
+      panelStyle = styles.PanelNormal;
+      divStyle = styles.Creator;
+      buttonStyle = styles.Button;
+    }
     return (
-      <div className={styles.Panel}>
-        <button
-          className={styles.PanelButton}
-          onClick={() => this.props.addNewSequenceToggle()}
-        >
-          {this.props.seq.seqCreationModeOn ? "Go Back" : "Add New"}
-        </button>
+      <div className={panelStyle}>
+        <div className={divStyle}>
+          <button
+            className={buttonStyle}
+            onClick={() => this.props.addNewSequenceToggle()}
+          >
+            {this.props.seq.seqCreationModeOn ? "Go Back" : "Add New"}
+          </button>
 
-        {this.props.seq.seqCreationModeOn && <SequenceCreator />}
+          {this.props.seq.seqCreationModeOn && <SequenceCreator />}
+        </div>
+
         {allSequences}
       </div>
     );

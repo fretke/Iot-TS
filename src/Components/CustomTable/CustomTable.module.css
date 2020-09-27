@@ -1,14 +1,16 @@
 .CustomTable {
   background-color: #eeeeee;
-  /* border: 1px solid black; */
+
   border-radius: 20px;
 
   border-collapse: collapse;
   color: black;
 }
+.Scroll {
+  overflow: auto;
+  max-height: 200px;
+}
 .CustomTable tr {
-  /* border-spacing: 0;
-  border-collapse: collapse; */
   border-bottom: 1px solid #838383;
   padding: 20px;
 }

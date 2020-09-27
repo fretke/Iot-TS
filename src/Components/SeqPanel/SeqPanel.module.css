@@ -1,18 +1,85 @@
 .Panel {
-  display: flex;
+  /* display: flex;
   justify-content: center;
-  flex-direction: column;
+  flex-direction: column; */
+  position: relative;
   /* flex-grow: 5; */
 }
-.PanelButton {
-  /* text-align: center; */
+
+.PanelNormal {
+  position: static;
+}
+
+.Creator {
+  width: 70%;
+  margin: 0 auto;
+}
+
+.Button {
+  display: block;
+  padding: 10px 20px;
+  cursor: pointer;
+  color: white;
+  background: #3c329b;
+  font-weight: bold;
+  border-radius: 5px;
+  margin: 0 auto;
+}
+
+.CreatorFixed {
+  width: 90%;
+  /* margin: 0 auto; */
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  bottom: 0;
+  transform: translate(-50%, 0);
+  /* left: 20%; */
+  z-index: 1;
+}
+.ButtonFixed {
   border: none;
   width: auto;
   padding: 10px 20px;
-  margin: 0 auto;
+  /* margin: 0 auto; */
+  position: fixed;
+  /* bottom: 0; */
+  /* left: 50%; */
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -80%);
   cursor: pointer;
   color: white;
   background: #3c329b;
   font-weight: bold;
   border-radius: 5px;
 }
+/* .Panel > div:first-child {
+  width: 70%;
+  margin: 0 auto;
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  bottom: 0;
+  transform: translate(-50%, 0);
+  left: 20%;
+  z-index: 1;
+}
+.PanelButton {
+  text-align: center;
+  border: none;
+  width: auto;
+  padding: 10px 20px;
+  margin: 0 auto;
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -80%);
+  cursor: pointer;
+  color: white;
+  background: #3c329b;
+  font-weight: bold;
+  border-radius: 5px;
+} */

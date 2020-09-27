@@ -19,17 +19,19 @@ const CustomTable = (props: CustomTableProps) => {
   });
 
   return (
-    <table className={styles.CustomTable}>
-      <thead>
-        <tr>
-          <th>No.:</th>
-          <th>Name</th>
-          <th>Speed</th>
-          <th>Position</th>
-        </tr>
-      </thead>
-      <tbody>{data}</tbody>
-    </table>
+    <div className={styles.Scroll}>
+      <table className={styles.CustomTable}>
+        <thead>
+          <tr>
+            <th>No.:</th>
+            <th>Name</th>
+            <th>Speed</th>
+            <th>Position</th>
+          </tr>
+        </thead>
+        <tbody>{data}</tbody>
+      </table>
+    </div>
   );
 };
 

@@ -1,11 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
 import { withStyles } from "@material-ui/core/styles";
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import TableHead from "@material-ui/core/TableHead";
-import TableRow from "@material-ui/core/TableRow";
 
 import IconButton from "@material-ui/core/IconButton";
 import PlayCircleOutlineIcon from "@material-ui/icons/PlayCircleOutline";
@@ -18,15 +13,13 @@ import { servoData } from "../../../store/Reducers/controlsReducer";
 import { deleteSequence } from "../../../store/Actions";
 import { StoreState } from "../../../store/Reducers";
 import { userReducerState } from "../../../store/Reducers/userReducer";
-
-import { SocketContext } from "../../../Context/SocketContext";
+import {SocketService} from "../../../Utils/SocketService";
 
 const tableStyles = (theme: any) => ({
   table: {
     width: 600,
     borderRadius: 3,
     margin: "0 auto",
-    // textAlign: "center"
   },
 });
 
@@ -34,6 +27,7 @@ interface SequenceProps {
   user: userReducerState;
   seqName: string;
   data: servoData[];
+  socketService: SocketService;
   deleteSequence(title: string, userEmail: string): Promise<void>;
 }
 
@@ -42,14 +36,12 @@ class Sequence extends React.Component<SequenceProps> {
     showMore: false,
   };
 
-  static contextType = SocketContext;
-
   deleteSequenceHandler = () => {
     this.props.deleteSequence(this.props.seqName, this.props.user.userEmail);
   };
 
   playSequence = () => {
-    this.context.excecuteSequence(this.props.data);
+    this.props.socketService.excecuteSequence(this.props.data);
   };
 
   render() {

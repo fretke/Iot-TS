@@ -8,7 +8,7 @@ import { StoreState } from "../../../store/Reducers";
 import { updateServo, Property } from "../../../store/Actions";
 import { userReducerState } from "../../../store/Reducers/userReducer";
 import { controlsState } from "../../../store/Reducers/controlsReducer";
-import { SocketContext } from "../../../Context/SocketContext";
+import {SocketService} from "../../../Utils/SocketService";
 
 function ValueLabelComponent(props: any) {
   const { children, open, value } = props;
@@ -27,6 +27,7 @@ interface ServoSliderProps {
   user: userReducerState;
   controls: controlsState;
   servoName: string;
+  socketService: SocketService
   updateServo(
     servoName: string,
     property: Property,
@@ -37,13 +38,9 @@ interface ServoSliderProps {
 }
 
 class ServoSlider extends React.Component<ServoSliderProps> {
-  static contextType = SocketContext;
 
   shouldComponentUpdate(nextProps: ServoSliderProps, nextState: any) {
-    if (nextProps.currentValue !== this.props.currentValue) {
-      return true;
-    }
-    return false;
+    return nextProps.currentValue !== this.props.currentValue;
   }
 
   handleSliderChange = (
@@ -59,7 +56,7 @@ class ServoSlider extends React.Component<ServoSliderProps> {
       this.props.user.id
     );
     // @ts-ignore
-    this.context.moveServo(this.props.servoName, parameter, newPos);
+    this.props.socketService.moveServo(this.props.servoName, parameter, newPos);
   };
 
   render() {
@@ -89,7 +86,6 @@ class ServoSlider extends React.Component<ServoSliderProps> {
             onChangeCommitted={(e, val) =>
               this.handleSliderChange(val, this.props.sliderType)
             }
-            // disabled={this.props.controls.loading}
           />
         </div>
       </React.Fragment>

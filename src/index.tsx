@@ -6,8 +6,6 @@ import { Provider } from "react-redux";
 import thunk from "redux-thunk";
 
 import rootReducer from "./store/Reducers";
-import { SocketContext } from "./Context/SocketContext";
-import { SocketService } from "./Utils/SocketService";
 
 declare global {
   interface Window {
@@ -21,13 +19,10 @@ const store = createStore(
   rootReducer,
   composeEnhancers(applyMiddleware(thunk))
 );
-const socket = new SocketService();
 
 ReactDOM.render(
   <Provider store={store}>
-    <SocketContext.Provider value={socket}>
       <App />
-    </SocketContext.Provider>
   </Provider>,
   document.getElementById("root")
 );

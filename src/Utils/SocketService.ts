@@ -1,6 +1,5 @@
 import io from "socket.io-client";
 import { SERVER } from "../Settings/settings";
-import { fromEvent, Observable } from "rxjs";
 import { Property } from "../store/Actions";
 import { servoData } from "../store/Reducers/controlsReducer";
 
@@ -15,34 +14,48 @@ export interface ServoMoveMessage {
   value: number;
 }
 
+export enum ConnectionTypes {
+  Led = "led",
+  Servo = "Servo",
+  ControllerDone = "controllerDone",
+  UpdateStarted = "updateStarted",
+  UpdateBulb = "UpdateBulb",
+  UpdateServo = "UpdateServo",
+  ExcecuteSequence = "ExecuteSequence",
+  Room = "room",
+  Connect = "connect"
+}
+
 export class SocketService {
   private socket: SocketIOClient.Socket = {} as SocketIOClient.Socket;
 
-  public init(id: string): SocketService {
+  public init(id: string, component: any): SocketService {
     this.socket = io(SERVER);
-    this.socket.on("connect", () => {
-      this.socket.emit("room", id);
+    this.socket.on(ConnectionTypes.Connect, () => {
+      this.socket.emit(ConnectionTypes.Room, id);
     });
+    this.manageConnections(component);
     return this;
+  }
+
+  private manageConnections(component: any){
+    this.socket.on(ConnectionTypes.Led, () => {
+      component.manageWsEvents(ConnectionTypes.Led);
+    });
+    this.socket.on(ConnectionTypes.Servo, (data: any) => {
+      console.log(data, "data from servo move")
+      component.manageWsEvents(ConnectionTypes.Servo, data);
+    });
+    this.socket.on(ConnectionTypes.ControllerDone, (data: any) => {
+      component.manageWsEvents(ConnectionTypes.ControllerDone, data);
+    })
+    this.socket.on(ConnectionTypes.UpdateStarted, () => {
+      component.manageWsEvents(ConnectionTypes.UpdateStarted);
+    })
   }
 
   public disconnect(): void {
     this.socket.disconnect();
-  }
-  public onLED(): Observable<any> {
-    return fromEvent(this.socket, "led");
-  }
-
-  public onServoMove(): Observable<ServoMoveMessage> {
-    return fromEvent(this.socket, "Servo");
-  }
-
-  public onControllerResponse(): Observable<ControllerResponse> {
-    return fromEvent(this.socket, "controllerDone");
-  }
-
-  public onControllerStart(): Observable<void> {
-    return fromEvent(this.socket, "updateStarted");
   }
 
   public toggleLED(ledState: boolean): void {
@@ -60,4 +73,5 @@ export class SocketService {
   public excecuteSequence(data: servoData[]) {
     this.socket.emit("excecuteSequence", data);
   }
+
 }

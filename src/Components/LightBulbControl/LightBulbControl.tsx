@@ -15,21 +15,22 @@ import styles from "./LightBulbControl.module.css";
 import { StoreState } from "../../store/Reducers";
 import { userReducerState } from "../../store/Reducers/userReducer";
 import { controlsState } from "../../store/Reducers/controlsReducer";
-import { SocketContext } from "../../Context/SocketContext";
+import {SocketService} from "../../Utils/SocketService";
 
 interface LightBulbProps {
   controls: controlsState;
   user: userReducerState;
+  socketService: SocketService
   updateLED(state: boolean, userEmail: string, id: string): Promise<void>;
   controllerStart(): ControllerBussyStart;
   setControllerError(m: string): ControllerError;
 }
 
 class LightBulbControl extends React.Component<LightBulbProps> {
-  static contextType = SocketContext;
-  buttonClickHandler = () => {
+
+  private buttonClickHandler = (): void => {
     const { userEmail, id } = this.props.user;
-    this.context.toggleLED(!this.props.controls.ledIsOn);
+    this.props.socketService.toggleLED(!this.props.controls.ledIsOn);
     this.props.updateLED(!this.props.controls.ledIsOn, userEmail, id);
   };
   render() {

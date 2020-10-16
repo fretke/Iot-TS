@@ -21,6 +21,7 @@ interface AppProps {
 const cookie = new Cookies();
 
 class App extends React.Component<AppProps> {
+
   componentDidMount() {
     console.log(cookie.get("user"), "<= kukis");
     if (cookie.get("user")) {

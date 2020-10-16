@@ -1,5 +1,5 @@
 import React from "react";
-import { connect } from "react-redux";
+import {connect} from "react-redux";
 import styles from "./ControlPanel.module.css";
 
 import LightBulbControl from "../../Components/LightBulbControl/LightBulbControl";
@@ -8,32 +8,28 @@ import Spinner from "../../Components/Spinner/Spinner";
 import SeqPanel from "../../Components/SeqPanel/SeqPanel";
 import Modal from "../../Components/Modal/Modal";
 
-import { StoreState } from "../../store/Reducers";
-import { userReducerState } from "../../store/Reducers/userReducer";
-import { controlsState, servoData } from "../../store/Reducers/controlsReducer";
+import {StoreState} from "../../store/Reducers";
+import {userReducerState} from "../../store/Reducers/userReducer";
+import {controlsState, servoData} from "../../store/Reducers/controlsReducer";
 
-import { SocketContext } from "../../Context/SocketContext";
 import {
-  toggleLED,
-  updateServoWS,
-  updateServoAfterSeq,
-  UpdateServoAfterSeqAction,
-  controllerFinish,
-  controllerStart,
-  setControllerError,
-  ControllerError,
-  ControllerBussyEnd,
-  ControllerBussyStart,
-  UpdateBulbAction,
-  Property,
-  updateServoAction,
   CloseControllerErrorModal,
   closeControllerErrorModal,
+  ControllerBussyEnd,
+  ControllerBussyStart,
+  ControllerError,
+  controllerFinish,
+  controllerStart,
+  Property,
+  setControllerError,
+  toggleLED,
+  UpdateBulbAction,
+  updateServoAction,
+  updateServoAfterSeq,
+  UpdateServoAfterSeqAction,
+  updateServoWS,
 } from "../../store/Actions";
-import {
-  ControllerResponse,
-  ServoMoveMessage,
-} from "../../Utils/SocketService";
+import {ConnectionTypes, SocketService,} from "../../Utils/SocketService";
 
 interface ControlPanelProps {
   user: userReducerState;
@@ -55,57 +51,55 @@ interface ControlPanelState {
   timer: NodeJS.Timeout | null;
 }
 
-class ControlPanel extends React.Component<ControlPanelProps> {
-  state: ControlPanelState = {
-    timer: null,
-  };
+class ControlPanel extends React.Component<ControlPanelProps, ControlPanelState> {
 
-  static contextType = SocketContext;
+  private readonly socketService: SocketService;
+
+  constructor(props: ControlPanelProps) {
+    super(props);
+    this.socketService = new SocketService()
+    this.state = {
+      timer: null,
+    }
+  }
 
   componentDidMount() {
-    this.context.init(this.props.user.id);
-    const ledMessage = this.context.onLED();
-    ledMessage.subscribe((message: string) => {
-      this.props.toggleLED();
-    });
-    const servoMessage = this.context.onServoMove();
-    servoMessage.subscribe((m: ServoMoveMessage) => {
-      this.props.updateServoWS(m.servoName, m.property, m.value);
-    });
-
-    const controllerFinish = this.context.onControllerResponse();
-    controllerFinish.subscribe((m: ControllerResponse) => {
-      this.props.controllerFinish();
-      if (m.data) {
-        console.log(m.data, "additional data");
-        this.props.updateServoAfterSeq(m.data);
-      }
-      if (this.state.timer) clearTimeout(this.state.timer);
-      console.log("controller finished task");
-    });
-
-    const controllerStart = this.context.onControllerStart();
-    controllerStart.subscribe((m: ControllerResponse) => {
-      this.props.controllerStart();
-      const timer = setTimeout(() => {
-        if (this.props.controls.controller.busy) {
-          this.props.setControllerError("Controller not connected");
-        }
-      }, 20000);
-      this.setState({ timer: timer });
-      console.log("controller started task");
-    });
+    this.socketService.init(this.props.user.id, this);
   }
-  // shouldComponentUpdate(
-  //   nextProps: ControlPanelProps,
-  //   nextState: ControlPanelState
-  // ) {
-  //   if (nextState.timer !== this.state.timer) return false;
-  //   return true;
-  // }
+
+  manageWsEvents(event: ConnectionTypes, data?: any){
+    const {toggleLED} = this.props
+    switch (event) {
+
+      case ConnectionTypes.Led:
+        toggleLED();
+        break;
+
+      case ConnectionTypes.Servo:
+        this.props.updateServoWS(data.servoName, data.property, data.value);
+        break;
+
+      case ConnectionTypes.ControllerDone:
+        this.props.controllerFinish();
+        if (data.data) {
+              this.props.updateServoAfterSeq(data.data);
+        }
+        if (this.state.timer) clearTimeout(this.state.timer);
+        break;
+
+      case ConnectionTypes.UpdateStarted:
+        this.props.controllerStart();
+          const timer = setTimeout(() => {
+            if (this.props.controls.controller.busy) {
+              this.props.setControllerError("Controller not connected");
+            }
+          }, 20000);
+          this.setState({ timer: timer });
+    }
+  }
 
   componentWillUnmount() {
-    this.context.disconnect();
+    this.socketService.disconnect();
   }
 
   render() {
@@ -117,7 +111,6 @@ class ControlPanel extends React.Component<ControlPanelProps> {
     } else {
       document.body.style.overflowY = "auto";
     }
-    // console.log("control panel rendering");
 
     const allServoMotors = this.props.controls.servos.map(
       (servo, index): JSX.Element => {
@@ -127,6 +120,7 @@ class ControlPanel extends React.Component<ControlPanelProps> {
             servoName={servo.name}
             currentPos={servo.pos}
             currentSpeed={servo.speed}
+            socketService={this.socketService}
           />
         );
       }
@@ -134,16 +128,16 @@ class ControlPanel extends React.Component<ControlPanelProps> {
     return (
       <div className={styles.AllControls}>
         <h1>All controls</h1>
-        <hr></hr>
-        <LightBulbControl />
-        <hr></hr>
+        <hr/>
+        <LightBulbControl socketService={this.socketService}/>
+        <hr/>
         <h2>Servo Motors</h2>
-        <hr></hr>
+        <hr/>
         <div className={styles.ServoMotorSection}>{allServoMotors}</div>
-        <hr></hr>
+        <hr/>
         <h2>Sequences</h2>
-        <hr></hr>
-        <SeqPanel />
+        <hr/>
+        <SeqPanel socketService={this.socketService}/>
         {this.props.controls.controller.busy && <Spinner />}
         {this.props.controls.controller.error && (
           <Modal

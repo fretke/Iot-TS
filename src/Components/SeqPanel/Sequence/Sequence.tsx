@@ -41,7 +41,7 @@ class Sequence extends React.Component<SequenceProps> {
   };
 
   playSequence = () => {
-    this.props.socketService.excecuteSequence(this.props.data);
+    this.props.socketService.executeSequence(this.props.data);
   };
 
   render() {

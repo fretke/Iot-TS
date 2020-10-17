@@ -31,7 +31,7 @@ import {
 } from "../../store/Actions";
 import {ConnectionTypes, SocketService,} from "../../Utils/SocketService";
 
-interface ControlPanelProps {
+export interface ControlPanelProps {
   user: userReducerState;
   controls: controlsState;
   toggleLED(): UpdateBulbAction;
@@ -55,47 +55,16 @@ class ControlPanel extends React.Component<ControlPanelProps, ControlPanelState>
 
   private readonly socketService: SocketService;
 
-  constructor(props: ControlPanelProps) {
+  public constructor(props: ControlPanelProps) {
     super(props);
-    this.socketService = new SocketService()
+    this.socketService = new SocketService(this.props.user.id)
     this.state = {
       timer: null,
     }
   }
 
-  componentDidMount() {
-    this.socketService.init(this.props.user.id, this);
-  }
-
-  manageWsEvents(event: ConnectionTypes, data?: any){
-    const {toggleLED} = this.props
-    switch (event) {
-
-      case ConnectionTypes.Led:
-        toggleLED();
-        break;
-
-      case ConnectionTypes.Servo:
-        this.props.updateServoWS(data.servoName, data.property, data.value);
-        break;
-
-      case ConnectionTypes.ControllerDone:
-        this.props.controllerFinish();
-        if (data.data) {
-              this.props.updateServoAfterSeq(data.data);
-        }
-        if (this.state.timer) clearTimeout(this.state.timer);
-        break;
-
-      case ConnectionTypes.UpdateStarted:
-        this.props.controllerStart();
-          const timer = setTimeout(() => {
-            if (this.props.controls.controller.busy) {
-              this.props.setControllerError("Controller not connected");
-            }
-          }, 20000);
-          this.setState({ timer: timer });
-    }
+  public componentDidMount(): void {
+    this.socketService.init(this);
   }
 
   componentWillUnmount() {

@@ -16,6 +16,7 @@ import { StoreState } from "../../store/Reducers";
 import { userReducerState } from "../../store/Reducers/userReducer";
 import { controlsState } from "../../store/Reducers/controlsReducer";
 import {SocketService} from "../../Utils/SocketService";
+import {StateManager} from "../../Utils/StateManager";
 
 interface LightBulbProps {
   controls: controlsState;
@@ -30,7 +31,9 @@ class LightBulbControl extends React.Component<LightBulbProps> {
 
   private buttonClickHandler = (): void => {
     const { userEmail, id } = this.props.user;
+    StateManager.instance.dispatch("trigger");
     this.props.socketService.toggleLED(!this.props.controls.ledIsOn);
+    this.props.socketService.getFrame();
     this.props.updateLED(!this.props.controls.ledIsOn, userEmail, id);
   };
   render() {

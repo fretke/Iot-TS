@@ -1,0 +1,28 @@
+.control-panel {
+
+  > h3 {
+    color: red;
+    margin: 0;
+  }
+
+  > hr {
+    width: 80%;
+
+    margin: 40px auto;
+  }
+
+  > h1, > h2 {
+    margin: 0;
+    text-align: center;
+  }
+}
+
+.main-controls {
+  display: flex;
+  justify-content: center;
+
+  > div{
+    width: 50%;
+    align-self: center;
+  }
+}

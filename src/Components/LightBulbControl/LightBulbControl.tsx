@@ -33,10 +33,11 @@ class LightBulbControl extends React.Component<LightBulbProps> {
     const { userEmail, id } = this.props.user;
     StateManager.instance.dispatch("trigger");
     this.props.socketService.toggleLED(!this.props.controls.ledIsOn);
-    this.props.socketService.getFrame();
+    // this.props.socketService.getFrame();
     this.props.updateLED(!this.props.controls.ledIsOn, userEmail, id);
   };
   render() {
+    const {loading, ledIsOn} = this.props.controls;
     return (
       <div className={styles.LightBulbSection}>
         <div>
@@ -44,8 +45,8 @@ class LightBulbControl extends React.Component<LightBulbProps> {
         </div>
         <div>
           <Switch
-            disabled={this.props.controls.loading}
-            checked={this.props.controls.ledIsOn}
+            disabled={loading}
+            checked={ledIsOn}
             onChange={this.buttonClickHandler}
           />
         </div>

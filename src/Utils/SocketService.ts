@@ -3,6 +3,7 @@ import {SERVER} from "../Settings/settings";
 import {Property} from "../store/Actions";
 import {servoData} from "../store/Reducers/controlsReducer";
 import ControlPanel, {ControlPanelProps} from "../Containers/ControlPanel/ControlPanel";
+import {MediaService, MediaWSActions} from "./MediaService";
 
 export interface ControllerResponse {
     status: boolean;
@@ -27,16 +28,10 @@ export enum ConnectionTypes {
     Connect = "connect"
 }
 
-export enum MediaWSActions {
-    Authenticate = "Authenticate",
-    GetPicture = "GetPicture"
-}
-
 export class SocketService {
     private socket: SocketIOClient.Socket = {} as SocketIOClient.Socket;
     private readonly _userId: string;
     private _timer: number | undefined
-    private _mediaSocket: WebSocket = {} as WebSocket;
 
     constructor(userId: string) {
         this._userId = userId;
@@ -48,49 +43,6 @@ export class SocketService {
             this.socket.emit(ConnectionTypes.Room, this._userId);
         });
         this.manageConnections(component);
-
-        this._mediaSocket = new WebSocket("ws://192.168.1.136:4000");
-        this._mediaSocket.onopen = () => {
-            const message = {
-                event: MediaWSActions.Authenticate,
-                payload: {
-                    id: this._userId
-                }
-            }
-            this._mediaSocket.send(JSON.stringify(message))
-            console.log("connected to mediaServer")
-        }
-
-        this.manageMediaEvents(component);
-    }
-
-    public getFrame() :void{
-        console.log("trying to send data");
-        const dataToSend = {
-            event: MediaWSActions.GetPicture,
-            payload: {
-                id: this._userId
-            }
-        }
-        this._mediaSocket.send(JSON.stringify(dataToSend));
-
-    }
-
-    private manageMediaEvents(component: any): void {
-        let urlObject: string;
-        this._mediaSocket.onmessage = message => {
-            // @ts-ignore
-        console.log(message, "message received from server");
-        if(typeof message.data !== "string"){
-            const arrayBuffer = message.data;
-                if (urlObject) {
-                    URL.revokeObjectURL(urlObject)
-                }
-                urlObject = URL.createObjectURL(new Blob([arrayBuffer]));
-                component.renderImg(urlObject);
-        }
-
-    }
     }
 
     private manageConnections(component: any) {
@@ -114,7 +66,8 @@ export class SocketService {
             controllerFinish();
             if (data.data) updateServoAfterSeq(data.data);
             if (this._timer) window.clearTimeout(this._timer);
-            this.getFrame();
+            MediaService.instance.broadcast(MediaWSActions.GetPicture);
+            // this.getFrame();
         })
         this.socket.on(ConnectionTypes.UpdateStarted, () => {
             controllerStart();

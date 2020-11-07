@@ -1,0 +1,10 @@
+.media {
+  border: 1px solid black;
+  padding: 10px;
+  margin: 10px;
+  >img {
+    display: block;
+    width: 90%;
+    margin: 0 auto;
+  }
+}

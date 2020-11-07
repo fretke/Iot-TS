@@ -11,6 +11,7 @@ import Modal from "../../Components/Modal/Modal";
 import {StoreState} from "../../store/Reducers";
 import {userReducerState} from "../../store/Reducers/userReducer";
 import {controlsState, servoData} from "../../store/Reducers/controlsReducer";
+import "./ControlPanel.style.scss";
 
 import {
     CloseControllerErrorModal,
@@ -29,8 +30,10 @@ import {
     UpdateServoAfterSeqAction,
     updateServoWS,
 } from "../../store/Actions";
-import {ConnectionTypes, SocketService,} from "../../Utils/SocketService";
+import {SocketService} from "../../Utils/SocketService";
 import {StateManager} from "../../Utils/StateManager";
+import {MediaService, MediaWSActions} from "../../Utils/MediaService";
+import {Media} from "../../Components/Media/Media";
 
 export interface ControlPanelProps {
     user: userReducerState;
@@ -66,6 +69,7 @@ class ControlPanel extends React.Component<ControlPanelProps, State> {
     public constructor(props: ControlPanelProps) {
         super(props);
         this.socketService = new SocketService(this.props.user.id);
+        MediaService.instance.userId = this.props.user.id;
         this.state = {
             trigger: 0
         }
@@ -73,6 +77,7 @@ class ControlPanel extends React.Component<ControlPanelProps, State> {
 
     public componentDidMount(): void {
         this.socketService.init(this);
+        MediaService.instance.init();
         StateManager.instance.addObserver("trigger", this, () => {
             const value = this.state.trigger + 1;
             this.setState({trigger: value})
@@ -81,26 +86,19 @@ class ControlPanel extends React.Component<ControlPanelProps, State> {
 
     componentWillUnmount() {
         this.socketService.disconnect();
-    }
-
-    public renderImg(url: string) {
-
-        console.log("rendering image");
-        // @ts-ignore
-        document.querySelector("img").src = url;
+        MediaService.instance.disconnect();
     }
 
     render() {
-        if (
-            this.props.controls.controller.busy ||
-            this.props.controls.controller.error
-        ) {
+        const {busy, error, message} = this.props.controls.controller;
+        const {servos} = this.props.controls;
+        if (busy || error) {
             document.body.style.overflowY = "hidden";
         } else {
             document.body.style.overflowY = "auto";
         }
 
-        const allServoMotors = this.props.controls.servos.map(
+        const allServoMotors = servos.map(
             (servo, index): JSX.Element => {
                 return (
                     <ServoControl
@@ -114,28 +112,29 @@ class ControlPanel extends React.Component<ControlPanelProps, State> {
             }
         );
         return (
-            <div className={styles.AllControls}>
-                <h1>{this.state.trigger}</h1>
+            <div className={"control-panel"}>
                 <h1>All controls</h1>
                 <hr/>
                 <LightBulbControl socketService={this.socketService}/>
                 <hr/>
                 <h2>Servo Motors</h2>
                 <hr/>
-                <div className={styles.ServoMotorSection}>{allServoMotors}</div>
+                <div className={"main-controls"}>
+                    <Media />
+                    <div>{allServoMotors}</div>
+                </div>
                 <hr/>
                 <h2>Sequences</h2>
                 <hr/>
                 <SeqPanel socketService={this.socketService}/>
-                {this.props.controls.controller.busy && <Spinner/>}
-                {this.props.controls.controller.error && (
+                {busy && <Spinner/>}
+                {error && (
                     <Modal
                         click={this.props.closeControllerErrorModal}
-                        title={this.props.controls.controller.message}
+                        title={message}
                     />
                 )}
-                <button onClick={() => this.socketService.getFrame()}>Get Pic</button>
-                <img src={""}/>
+                <button onClick={() => MediaService.instance.broadcast(MediaWSActions.GetPicture)}>Get Pic</button>
             </div>
         );
     }

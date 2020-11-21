@@ -35,14 +35,16 @@ export class SocketService {
 
     constructor(userId: string) {
         this._userId = userId;
+        return this;
     }
 
-    public init(component: any): void {
+    public init(component: any): SocketService {
         this.socket = io(SERVER);
         this.socket.on(ConnectionTypes.Connect, () => {
             this.socket.emit(ConnectionTypes.Room, this._userId);
         });
         this.manageConnections(component);
+        return this;
     }
 
     private manageConnections(component: any) {

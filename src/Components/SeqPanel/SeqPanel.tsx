@@ -15,10 +15,12 @@ import IconButton from "@material-ui/core/IconButton";
 import AddIcon from "@material-ui/icons/Add";
 import BackspaceIcon from "@material-ui/icons/Backspace";
 import {SocketService} from "../../Utils/SocketService";
+import ControlsService from "../../services/ControlsService";
 
 interface SeqPanelProps {
     seq: seqState;
     socketService: SocketService
+    controlsManager: ControlsService
 
     addNewSequenceToggle(): AddNewSequenceToggleAction;
 }
@@ -27,6 +29,10 @@ class SeqPanel extends React.Component<SeqPanelProps> {
     state = {
         addSeq: false,
     };
+
+    private addNewSequence(): void {
+        this.props.controlsManager.dispatchEvent("onSequenceCreation");
+    }
 
     render() {
         const allSequences = this.props.seq.seq.map((item, index) => {
@@ -50,7 +56,7 @@ class SeqPanel extends React.Component<SeqPanelProps> {
                 <div className={divStyle}>
                     <button
                         className={buttonStyle}
-                        onClick={() => this.props.addNewSequenceToggle()}
+                        onClick={() => this.addNewSequence()}
                     >
                         {this.props.seq.seqCreationModeOn ? "Go Back" : "Add New"}
                     </button>

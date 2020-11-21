@@ -1,8 +1,6 @@
 import React from "react";
 import {connect} from "react-redux";
-import styles from "./ControlPanel.module.css";
-
-import LightBulbControl from "../../Components/LightBulbControl/LightBulbControl";
+import DeviceToggler from "../../Components/DeviceToggler/DeviceToggler";
 import ServoControl from "../../Components/ServoControl/ServoControl";
 import Spinner from "../../Components/Spinner/Spinner";
 import SeqPanel from "../../Components/SeqPanel/SeqPanel";
@@ -34,6 +32,8 @@ import {SocketService} from "../../Utils/SocketService";
 import {StateManager} from "../../Utils/StateManager";
 import {MediaService, MediaWSActions} from "../../Utils/MediaService";
 import {Media} from "../../Components/Media/Media";
+import ControlsService from "../../services/ControlsService";
+import {SERVER} from "../../Settings/settings";
 
 export interface ControlPanelProps {
     user: userReducerState;
@@ -65,26 +65,32 @@ interface State {
 class ControlPanel extends React.Component<ControlPanelProps, State> {
 
     private readonly socketService: SocketService;
+    private readonly controlsManager: ControlsService;
 
     public constructor(props: ControlPanelProps) {
         super(props);
-        this.socketService = new SocketService(this.props.user.id);
-        MediaService.instance.userId = this.props.user.id;
+        const {id, userEmail} = props.user;
+        this.socketService = new SocketService(id).init(this);
+        this.controlsManager = new ControlsService(SERVER, userEmail, id,  this.socketService);
+
+        MediaService.instance.userId = id;
         this.state = {
             trigger: 0
         }
     }
 
     public componentDidMount(): void {
-        this.socketService.init(this);
+        // this.socketService.init(this);
         MediaService.instance.init();
         StateManager.instance.addObserver("trigger", this, () => {
             const value = this.state.trigger + 1;
             this.setState({trigger: value})
         });
+
+        this.controlsManager.initializeServos(this.props.controls.servos)
     }
 
-    componentWillUnmount() {
+    public componentWillUnmount() {
         this.socketService.disconnect();
         MediaService.instance.disconnect();
     }
@@ -102,31 +108,29 @@ class ControlPanel extends React.Component<ControlPanelProps, State> {
             (servo, index): JSX.Element => {
                 return (
                     <ServoControl
+                        controlsManager={this.controlsManager}
                         key={index}
                         servoName={servo.name}
                         currentPos={servo.pos}
                         currentSpeed={servo.speed}
-                        socketService={this.socketService}
                     />
                 );
             }
         );
         return (
             <div className={"control-panel"}>
-                <h1>All controls</h1>
-                <hr/>
-                <LightBulbControl socketService={this.socketService}/>
-                <hr/>
-                <h2>Servo Motors</h2>
-                <hr/>
-                <div className={"main-controls"}>
+
+                <section className={"top-grid"}>
+                    <DeviceToggler socketService={this.socketService}/>
+                </section>
+                <div className={"main-grid"}>
                     <Media />
-                    <div>{allServoMotors}</div>
+                    <div className={"motor-controls"}>{allServoMotors}</div>
                 </div>
-                <hr/>
-                <h2>Sequences</h2>
-                <hr/>
-                <SeqPanel socketService={this.socketService}/>
+
+                <SeqPanel
+                    controlsManager={this.controlsManager}
+                    socketService={this.socketService}/>
                 {busy && <Spinner/>}
                 {error && (
                     <Modal

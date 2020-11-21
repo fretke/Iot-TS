@@ -10,13 +10,13 @@ import {
 } from "../../store/Actions";
 import Switch from "@material-ui/core/Switch";
 
-import styles from "./LightBulbControl.module.css";
-
 import { StoreState } from "../../store/Reducers";
 import { userReducerState } from "../../store/Reducers/userReducer";
 import { controlsState } from "../../store/Reducers/controlsReducer";
 import {SocketService} from "../../Utils/SocketService";
 import {StateManager} from "../../Utils/StateManager";
+
+import "./DeviceToggler.scss"
 
 interface LightBulbProps {
   controls: controlsState;
@@ -27,7 +27,7 @@ interface LightBulbProps {
   setControllerError(m: string): ControllerError;
 }
 
-class LightBulbControl extends React.Component<LightBulbProps> {
+class DeviceToggler extends React.Component<LightBulbProps> {
 
   private buttonClickHandler = (): void => {
     const { userEmail, id } = this.props.user;
@@ -39,17 +39,13 @@ class LightBulbControl extends React.Component<LightBulbProps> {
   render() {
     const {loading, ledIsOn} = this.props.controls;
     return (
-      <div className={styles.LightBulbSection}>
-        <div>
-          <h3>LED control</h3>
-        </div>
-        <div>
+      <div className={"switch"}>
+          <h3>LED</h3>
           <Switch
             disabled={loading}
             checked={ledIsOn}
             onChange={this.buttonClickHandler}
           />
-        </div>
       </div>
     );
   }
@@ -66,4 +62,4 @@ export default connect(mapStateToProps, {
   updateLED,
   controllerStart,
   setControllerError,
-})(LightBulbControl);
+})(DeviceToggler);

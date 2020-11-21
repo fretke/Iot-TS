@@ -1,5 +1,8 @@
 .control-panel {
 
+  height: 100vh;
+  background-color: #e8e8e8;
+
   > h3 {
     color: red;
     margin: 0;
@@ -17,12 +20,30 @@
   }
 }
 
-.main-controls {
-  display: flex;
-  justify-content: center;
+.top-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+}
+
+.main-grid {
+  display: grid;
+  grid-template-columns: 24fr 12fr 3fr;
+
+  .motor-controls {
+    display: grid;
+    grid-gap: 1em;
+    padding-left: 1em;
+  }
+
+  @media (max-width: 700px) {
+    flex-direction: column;
+  }
 
   > div{
-    width: 50%;
+    //width: 50%;
     align-self: center;
+    @media (max-width: 700px) {
+      width: 80%;
+    }
   }
 }

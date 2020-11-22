@@ -1,108 +1,95 @@
 import React from "react";
-import {connect} from "react-redux";
 import DeviceToggler from "../../Components/DeviceToggler/DeviceToggler";
 import ServoControl from "../../Components/ServoControl/ServoControl";
-import Spinner from "../../Components/Spinner/Spinner";
-import SeqPanel from "../../Components/SeqPanel/SeqPanel";
-import Modal from "../../Components/Modal/Modal";
 
-import {StoreState} from "../../store/Reducers";
-import {userReducerState} from "../../store/Reducers/userReducer";
-import {controlsState, servoData} from "../../store/Reducers/controlsReducer";
 import "./ControlPanel.style.scss";
-
-import {
-    CloseControllerErrorModal,
-    closeControllerErrorModal,
-    ControllerBussyEnd,
-    ControllerBussyStart,
-    ControllerError,
-    controllerFinish,
-    controllerStart,
-    Property,
-    setControllerError,
-    toggleLED,
-    UpdateBulbAction,
-    updateServoAction,
-    updateServoAfterSeq,
-    UpdateServoAfterSeqAction,
-    updateServoWS,
-} from "../../store/Actions";
-import {SocketService} from "../../Utils/SocketService";
-import {StateManager} from "../../Utils/StateManager";
 import {MediaService, MediaWSActions} from "../../Utils/MediaService";
 import {Media} from "../../Components/Media/Media";
 import ControlsService from "../../services/ControlsService";
 import {SERVER} from "../../Settings/settings";
+import {UserService} from "../../services/UserService";
+import {IoT, SequenceType, ServoData} from "../../App";
+import {IncomingEvents} from "../../Utils/SocketService";
+import Spinner from "../../Components/Spinner/Spinner";
+import Modal from "../../Components/Modal/Modal";
+import SeqPanel from "../../Components/SeqPanel/SeqPanel";
 
 export interface ControlPanelProps {
-    user: userReducerState;
-    controls: controlsState;
-
-    toggleLED(): UpdateBulbAction;
-
-    updateServoWS(
-        servoName: string,
-        property: Property,
-        value: number
-    ): updateServoAction;
-
-    controllerFinish(): ControllerBussyEnd;
-
-    controllerStart(): ControllerBussyStart;
-
-    setControllerError(m: string): ControllerError;
-
-    closeControllerErrorModal(): CloseControllerErrorModal;
-
-    updateServoAfterSeq(data: servoData[]): UpdateServoAfterSeqAction;
+    controls: IoT;
+    client: UserService;
 }
 
 interface State {
-    trigger: number
+    servos: ServoData[];
+    seq: SequenceType[];
+    busy: boolean;
+    error?: string | null;
 }
 
 class ControlPanel extends React.Component<ControlPanelProps, State> {
 
-    private readonly socketService: SocketService;
     private readonly controlsManager: ControlsService;
 
     public constructor(props: ControlPanelProps) {
         super(props);
-        const {id, userEmail} = props.user;
-        this.socketService = new SocketService(id).init(this);
-        this.controlsManager = new ControlsService(SERVER, userEmail, id,  this.socketService);
+        const {id, userEmail} = props.client.getCredentials();
+        this.controlsManager = new ControlsService(SERVER, userEmail, id);
 
         MediaService.instance.userId = id;
         this.state = {
-            trigger: 0
+            servos: this.props.controls.servos,
+            seq: this.props.controls.seq,
+            busy: false,
         }
     }
 
     public componentDidMount(): void {
-        // this.socketService.init(this);
         MediaService.instance.init();
-        StateManager.instance.addObserver("trigger", this, () => {
-            const value = this.state.trigger + 1;
-            this.setState({trigger: value})
-        });
+        this.controlsManager.initializeServos(this.state.servos);
+        this.controlsManager
+            .addObserver(IncomingEvents.OnBusyChange, this, (busy: boolean) => {
+                this.setState({busy})
+            })
+            .addObserver(IncomingEvents.NotConnected, this, (message: string) => {
+                this.setState({
+                    busy: false,
+                    error: message
+                })
+            })
+            .addObserver(IncomingEvents.SequenceOver, this, this.onSequenceOver.bind(this))
+    }
 
-        this.controlsManager.initializeServos(this.props.controls.servos)
+    private onSequenceOver(data: ServoData[]): void {
+        console.log(data, "data");
+        const updated = this.state.servos.map((servo) => {
+            for (const s of data){
+                if (servo.name === s.name) {
+                    servo.speed = s.speed;
+                    servo.pos = s.pos;
+                    return servo;
+                }
+            }
+            return servo;
+        })
+
+        // console.log("updating after sequence end");
+        this.setState({servos: updated})
     }
 
     public componentWillUnmount() {
-        this.socketService.disconnect();
+        this.controlsManager.disconnect();
         MediaService.instance.disconnect();
     }
 
+    private onModalClose(): void {
+        this.setState({
+            error: null
+        })
+    }
+
     render() {
-        const {busy, error, message} = this.props.controls.controller;
-        const {servos} = this.props.controls;
-        if (busy || error) {
-            document.body.style.overflowY = "hidden";
-        } else {
-            document.body.style.overflowY = "auto";
-        }
+
+        const {busy, servos, error} = this.state;
 
         const allServoMotors = servos.map(
             (servo, index): JSX.Element => {
@@ -110,7 +97,7 @@ class ControlPanel extends React.Component<ControlPanelProps, State> {
                     <ServoControl
                         controlsManager={this.controlsManager}
                         key={index}
-                        servoName={servo.name}
+                        name={servo.name}
                         currentPos={servo.pos}
                         currentSpeed={servo.speed}
                     />
@@ -121,21 +108,21 @@ class ControlPanel extends React.Component<ControlPanelProps, State> {
             <div className={"control-panel"}>
 
                 <section className={"top-grid"}>
-                    <DeviceToggler socketService={this.socketService}/>
+                    <DeviceToggler controlsManager={this.controlsManager}/>
                 </section>
                 <div className={"main-grid"}>
-                    <Media />
+                    <Media/>
                     <div className={"motor-controls"}>{allServoMotors}</div>
                 </div>
 
                 <SeqPanel
-                    controlsManager={this.controlsManager}
-                    socketService={this.socketService}/>
+                    seq={this.state.seq}
+                    controlsManager={this.controlsManager}/>
                 {busy && <Spinner/>}
                 {error && (
                     <Modal
-                        click={this.props.closeControllerErrorModal}
-                        title={message}
+                        click={() => this.onModalClose()}
+                        title={error}
                     />
                 )}
                 <button onClick={() => MediaService.instance.broadcast(MediaWSActions.GetPicture)}>Get Pic</button>
@@ -144,19 +131,4 @@ class ControlPanel extends React.Component<ControlPanelProps, State> {
     }
 }
 
-const mapStateToProps = (state: StoreState) => {
-    return {
-        user: state.user,
-        controls: state.controls,
-    };
-};
-
-export default connect(mapStateToProps, {
-    toggleLED,
-    updateServoWS,
-    updateServoAfterSeq,
-    controllerFinish,
-    controllerStart,
-    setControllerError,
-    closeControllerErrorModal,
-})(ControlPanel);
+export default ControlPanel;

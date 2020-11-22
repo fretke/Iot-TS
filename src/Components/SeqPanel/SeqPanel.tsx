@@ -1,28 +1,13 @@
 import React from "react";
-import {connect} from "react-redux";
-import {StoreState} from "../../store/Reducers";
-import {seqState} from "../../store/Reducers/sequenceReducer";
-import Sequence from "./Sequence/Sequence";
 import SequenceCreator from "./SequenceCreator/SequenceCreator";
 import styles from "./SeqPanel.module.css";
-
-import {
-    addNewSequenceToggle,
-    AddNewSequenceToggleAction,
-} from "../../store/Actions/seqActions";
-
-import IconButton from "@material-ui/core/IconButton";
-import AddIcon from "@material-ui/icons/Add";
-import BackspaceIcon from "@material-ui/icons/Backspace";
-import {SocketService} from "../../Utils/SocketService";
 import ControlsService from "../../services/ControlsService";
+import {SequenceType} from "../../App";
+import Sequence from "./Sequence/Sequence";
 
 interface SeqPanelProps {
-    seq: seqState;
-    socketService: SocketService
+    seq: SequenceType[];
     controlsManager: ControlsService
-
-    addNewSequenceToggle(): AddNewSequenceToggleAction;
 }
 
 class SeqPanel extends React.Component<SeqPanelProps> {
@@ -35,14 +20,18 @@ class SeqPanel extends React.Component<SeqPanelProps> {
     }
 
     render() {
-        const allSequences = this.props.seq.seq.map((item, index) => {
-            return <Sequence socketService={this.props.socketService} key={index} seqName={item.seqName}
-                             data={item.moves}/>;
+        const {addSeq} = this.state
+        const allSequences = this.props.seq.map((item, index) => {
+            return <Sequence
+                controlsManager={this.props.controlsManager}
+                key={index}
+                seqName={item.seqName}
+                data={item.moves}/>;
         });
         let panelStyle = null;
         let divStyle = null;
         let buttonStyle = null;
-        if (this.props.seq.seqCreationModeOn) {
+        if (addSeq) {
             panelStyle = styles.Panel;
             divStyle = styles.CreatorFixed;
             buttonStyle = styles.ButtonFixed;
@@ -58,10 +47,10 @@ class SeqPanel extends React.Component<SeqPanelProps> {
                         className={buttonStyle}
                         onClick={() => this.addNewSequence()}
                     >
-                        {this.props.seq.seqCreationModeOn ? "Go Back" : "Add New"}
+                        {addSeq ? "Go Back" : "Add New"}
                     </button>
 
-                    {this.props.seq.seqCreationModeOn && <SequenceCreator/>}
+                    {addSeq && <SequenceCreator/>}
                 </div>
 
                 {allSequences}
@@ -70,10 +59,4 @@ class SeqPanel extends React.Component<SeqPanelProps> {
     }
 }
 
-const mapStateToProps = (state: StoreState) => {
-    return {
-        seq: state.allSeq,
-    };
-};
-
-export default connect(mapStateToProps, {addNewSequenceToggle})(SeqPanel);
+export default SeqPanel;

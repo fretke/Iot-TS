@@ -1,27 +1,18 @@
-import React, {ChangeEvent, Fragment} from "react";
-import ServoSlider from "./ServoSlider/ServoSlider";
-import {connect} from "react-redux";
-import {StoreState} from "../../store/Reducers";
-
-import {addNewSequenceElement, AddNewSequenceElementAction, Property,} from "../../store/Actions";
-import {seqState} from "../../store/Reducers/sequenceReducer";
-import {controlsState, servoData} from "../../store/Reducers/controlsReducer";
+import React, {ChangeEvent} from "react";
 
 import IconButton from "@material-ui/core/IconButton";
 import SaveIcon from "@material-ui/icons/Save";
 
 import "./ServoControls.style.scss";
 import ControlsService from "../../services/ControlsService";
+import {IncomingEvents} from "../../Utils/SocketService";
+import {ServoData} from "../../App";
 
 interface Props {
     controlsManager: ControlsService
-    servoName: string;
+    name: string;
     currentPos: number;
     currentSpeed: number;
-    seq: seqState;
-    controls: controlsState;
-
-    addNewSequenceElement(data: servoData[]): AddNewSequenceElementAction;
 }
 
 interface State {
@@ -42,9 +33,28 @@ class ServoControl extends React.Component<Props, State> {
         }
     }
 
+    public componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) {
+        if (this.props.currentSpeed !== prevProps.currentSpeed ||
+        this.props.currentPos !== prevProps.currentPos) {
+            this.setState({pos: this.props.currentPos, speed: this.props.currentSpeed});
+        }
+    }
+
     public componentDidMount(): void {
         this.props.controlsManager.addObserver("onSequenceCreation", this, () => {
             this.setState({seqCreation: !this.state.seqCreation});
+        })
+
+        this.props.controlsManager.addObserver(
+            `${IncomingEvents.OnServoUpdate}${this.props.name}`,
+            this,
+            this.onDeviceUpdate.bind(this));
+    }
+
+    public onDeviceUpdate(data: ServoData): void {
+        this.setState({
+            pos: data.pos,
+            speed: data.speed
         })
     }
 
@@ -52,13 +62,13 @@ class ServoControl extends React.Component<Props, State> {
         this.props.controlsManager.removeObserver(this);
     }
 
-    saveServoDataToSeq = () => {
-        let {name, pos, speed} = this.props.controls.servos.filter((servo) => {
-            return servo.name === this.props.servoName;
-        })[0];
-        const savableData = [{name, pos, speed}];
-        this.props.addNewSequenceElement(savableData);
-    };
+    // saveServoDataToSeq = () => {
+    //     let {name, pos, speed} = this.props.controls.servos.filter((servo) => {
+    //         return servo.name === this.props.servoName;
+    //     })[0];
+    //     const savableData = [{name, pos, speed}];
+    //     this.props.addNewSequenceElement(savableData);
+    // };
 
     private onInputChange (e: ChangeEvent<HTMLInputElement>): void {
         const {name, value} = e.target;
@@ -69,20 +79,20 @@ class ServoControl extends React.Component<Props, State> {
 
     private onMoveHandler (): void {
         const {speed, pos} = this.state;
-        const {controlsManager} = this.props;
+        const {controlsManager, name} = this.props;
 
-        controlsManager.updateServo(this.props.servoName, {speed, pos});
+        controlsManager.moveServo({name, speed, pos});
     }
 
     render() {
         const {pos, speed, seqCreation} = this.state;
-        const {servoName} = this.props;
+        const {name} = this.props;
         return (
-            <Fragment>
+            <>
                 <div className={"single-servo-grid"}>
                     <div>
                         <fieldset>
-                            <legend>{servoName}</legend>
+                            <legend>{name}</legend>
                             <div className={"wrapper"}>
                                 <div>
                                     <label>Position</label>
@@ -101,7 +111,7 @@ class ServoControl extends React.Component<Props, State> {
                                 <button onClick={() => this.onMoveHandler()}>move</button>
                                 {seqCreation && (
                                     <IconButton
-                                        onClick={() => this.saveServoDataToSeq()}
+                                        // onClick={() => this.saveServoDataToSeq()}
                                         aria-label="save"
                                         color="primary"
                                     >
@@ -112,18 +122,10 @@ class ServoControl extends React.Component<Props, State> {
                         </fieldset>
                     </div>
                 </div>
-            </Fragment>
+            </>
         );
     }
 }
 
-const mapStateToProps = (state: StoreState) => {
-    return {
-        seq: state.allSeq,
-        controls: state.controls,
-    };
-};
 
-export default connect(mapStateToProps, {addNewSequenceElement})(
-    ServoControl
-);
+export default ServoControl;

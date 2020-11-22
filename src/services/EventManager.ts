@@ -7,22 +7,23 @@ export class EventManager {
 
     private readonly _listenerMap: Map<string, Array<Admisable>> = new Map();
 
-    public addObserver(event: string, target: Object, cb: Function): void {
+    public addObserver(event: string, target: Object, cb: Function): EventManager {
         const temp = this._listenerMap.get(event) || [];
 
         for (const listeners of temp) {
-            if (listeners.target === target) return;
+            if (listeners.target === target) return this;
         }
 
         temp.push({target, cb});
         this._listenerMap.set(event, temp)
+        return this;
     }
 
-    public dispatchEvent(event: string): void {
+    public dispatchEvent(event: string, arg?: any): void {
         const listeners = this._listenerMap.get(event) || [];
 
         for (const listener of listeners) {
-            listener.cb();
+            listener.cb(arg);
         }
     }
 

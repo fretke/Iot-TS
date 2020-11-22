@@ -4,6 +4,9 @@ import {Property} from "../store/Actions";
 import {servoData} from "../store/Reducers/controlsReducer";
 import ControlPanel, {ControlPanelProps} from "../Containers/ControlPanel/ControlPanel";
 import {MediaService, MediaWSActions} from "./MediaService";
+import {EventManager} from "../services/EventManager";
+import ControlsService from "../services/ControlsService";
+import {ServoData} from "../App";
 
 export interface ControllerResponse {
     status: boolean;
@@ -12,8 +15,8 @@ export interface ControllerResponse {
 
 export interface ServoMoveMessage {
     servoName: string;
-    property: Property;
-    value: number;
+    pos: number;
+    speed: number;
 }
 
 export enum ConnectionTypes {
@@ -28,73 +31,83 @@ export enum ConnectionTypes {
     Connect = "connect"
 }
 
-export class SocketService {
+export enum OutgoingEvents {
+    UpdateDevice = "UpdateDevice",
+    UpdateServo = "UpdateServo"
+
+}
+
+export enum IncomingEvents {
+    ToggleDevice = "led",
+    OnServoUpdate = "Servo",
+    UpdateStarted = "updateStarted",
+    UpdateFinished = "updateFinished",
+    OnBusyChange = "OnBusyChange",
+    NotConnected = "NotConnected",
+    SequenceOver = "SequenceOver"
+}
+
+export class SocketService extends EventManager {
     private socket: SocketIOClient.Socket = {} as SocketIOClient.Socket;
     private readonly _userId: string;
     private _timer: number | undefined
 
     constructor(userId: string) {
+        super();
         this._userId = userId;
         return this;
     }
 
-    public init(component: any): SocketService {
+    public init(service: ControlsService): SocketService {
         this.socket = io(SERVER);
         this.socket.on(ConnectionTypes.Connect, () => {
             this.socket.emit(ConnectionTypes.Room, this._userId);
         });
-        this.manageConnections(component);
+        this.manageEvents(service);
         return this;
     }
 
-    private manageConnections(component: any) {
-        const {
-            controllerFinish,
-            toggleLED,
-            updateServoWS,
-            updateServoAfterSeq,
-            controllerStart,
-            setControllerError
-        } = component.props as ControlPanelProps
-        this.socket.on(ConnectionTypes.Led, () => {
-            toggleLED();
+    private manageEvents(service: ControlsService) {
+
+        this.socket.on(IncomingEvents.ToggleDevice, () => {
+            service.dispatchEvent(IncomingEvents.ToggleDevice);
         });
-        this.socket.on(ConnectionTypes.Servo, (data: ServoMoveMessage) => {
+        this.socket.on(IncomingEvents.OnServoUpdate, (data: ServoData) => {
             console.log(data, "data from servo move")
-            updateServoWS(data.servoName, data.property, data.value);
+            service.updateServo(data).dispatchEvent(IncomingEvents.OnServoUpdate + data.name, data);
         });
-        this.socket.on(ConnectionTypes.ControllerDone, (data: ControllerResponse) => {
-            console.log(data, "data after controller done");
-            controllerFinish();
-            if (data.data) updateServoAfterSeq(data.data);
+        this.socket.on(IncomingEvents.UpdateFinished, (data: ControllerResponse) => {
+            service.dispatchEvent(IncomingEvents.OnBusyChange, false);
             if (this._timer) window.clearTimeout(this._timer);
             MediaService.instance.broadcast(MediaWSActions.GetPicture);
-            // this.getFrame();
         })
-        this.socket.on(ConnectionTypes.UpdateStarted, () => {
-            controllerStart();
+        this.socket.on(IncomingEvents.UpdateStarted, () => {
+            service.dispatchEvent(IncomingEvents.OnBusyChange, true);
+
             this._timer = window.setTimeout(() => {
-                if (component.props.controls.controller.busy) {
-                    setControllerError("Controller not connected")
+                if (this._timer) {
+                    service.dispatchEvent(IncomingEvents.NotConnected, "Controller not connected");
                 }
             }, 20000)
         })
+
+        this.socket.on(IncomingEvents.SequenceOver, (data: ServoData[]) => {
+            service.dispatchEvent(IncomingEvents.OnBusyChange, false);
+            if (this._timer) window.clearTimeout(this._timer);
+            service.dispatchEvent(IncomingEvents.SequenceOver, data);
+        });
     }
 
     public disconnect(): void {
         this.socket.disconnect();
     }
 
-    public toggleLED(ledState: boolean): void {
-        this.socket.emit(ConnectionTypes.UpdateBulb, ledState);
+    public toggleLED(deviceState: boolean): void {
+        this.socket.emit(OutgoingEvents.UpdateDevice, deviceState);
     }
 
-    public moveServo(servoName: string, property: Property, value: number) {
-        this.socket.emit(ConnectionTypes.UpdateServo, {
-            servoName,
-            property,
-            value,
-        });
+    public moveServo(data: servoData) {
+        this.socket.emit(OutgoingEvents.UpdateServo, data);
     }
 
     public executeSequence(data: servoData[]) {

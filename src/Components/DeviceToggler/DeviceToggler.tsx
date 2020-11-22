@@ -13,38 +13,62 @@ import Switch from "@material-ui/core/Switch";
 import { StoreState } from "../../store/Reducers";
 import { userReducerState } from "../../store/Reducers/userReducer";
 import { controlsState } from "../../store/Reducers/controlsReducer";
-import {SocketService} from "../../Utils/SocketService";
+import {IncomingEvents, ServoMoveMessage, SocketService} from "../../Utils/SocketService";
 import {StateManager} from "../../Utils/StateManager";
 
 import "./DeviceToggler.scss"
+import ControlsService from "../../services/ControlsService";
 
-interface LightBulbProps {
+interface Props {
+  controlsManager: ControlsService
   controls: controlsState;
   user: userReducerState;
-  socketService: SocketService
   updateLED(state: boolean, userEmail: string, id: string): Promise<void>;
   controllerStart(): ControllerBussyStart;
   setControllerError(m: string): ControllerError;
 }
 
-class DeviceToggler extends React.Component<LightBulbProps> {
+interface State {
+  isOn: boolean
+}
 
-  private buttonClickHandler = (): void => {
-    const { userEmail, id } = this.props.user;
-    StateManager.instance.dispatch("trigger");
-    this.props.socketService.toggleLED(!this.props.controls.ledIsOn);
-    // this.props.socketService.getFrame();
-    this.props.updateLED(!this.props.controls.ledIsOn, userEmail, id);
-  };
+class DeviceToggler extends React.Component<Props, State> {
+
+  constructor(props: Props) {
+    super(props);
+
+    this.state = {
+      isOn: false
+    }
+  }
+
+  // private buttonClickHandler = (): void => {
+  //   const { userEmail, id } = this.props.user;
+  //   StateManager.instance.dispatch("trigger");
+  //   this.props.socketService.toggleLED(!this.props.controls.ledIsOn);
+  //   // this.props.socketService.getFrame();
+  //   this.props.updateLED(!this.props.controls.ledIsOn, userEmail, id);
+  // };
+
+  public componentDidMount(): void {
+    this.props.controlsManager.addObserver(IncomingEvents.ToggleDevice, this, () => {
+      this.setState({isOn: !this.state.isOn})
+    })
+  }
+
+  public onToggle(): void {
+    this.props.controlsManager.toggleDevice(!this.state.isOn);
+    this.setState({isOn: !this.state.isOn});
+  }
+
   render() {
-    const {loading, ledIsOn} = this.props.controls;
+    const {isOn} = this.state;
     return (
       <div className={"switch"}>
           <h3>LED</h3>
           <Switch
-            disabled={loading}
-            checked={ledIsOn}
-            onChange={this.buttonClickHandler}
+            checked={isOn}
+            onChange={() => this.onToggle()}
           />
       </div>
     );

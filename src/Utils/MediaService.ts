@@ -51,7 +51,6 @@ export class MediaService {
         this._mediaSocket.onopen = () => this.broadcast(MediaWSActions.Authenticate);
         this._mediaSocket.onmessage = message => {
             // @ts-ignore
-            console.log(message, "message received from server");
             if(typeof message.data !== "string"){
                 const arrayBuffer = message.data;
                 if (urlObject) {

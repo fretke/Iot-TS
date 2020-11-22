@@ -1,47 +1,97 @@
 import React from "react";
-import { connect } from "react-redux";
-
-import { StoreState } from "./store/Reducers";
-import { userReducerState } from "./store/Reducers/userReducer";
-import { controlsState } from "./store/Reducers/controlsReducer";
 import LogIn from "./Components/LogIn/LogIn";
 import ControlPanel from "./Containers/ControlPanel/ControlPanel";
-import Modal from "./Components/Modal/Modal";
 import Spinner from "./Components/Spinner/Spinner";
-import { closeModal, closeModalAction, logInUser } from "./store/Actions";
 import Cookies from "universal-cookie";
+import {UserService} from "./services/UserService";
+import {SERVER} from "./Settings/settings";
+import {RestApi} from "./services/RestApi";
+import Modal from "./Components/Modal/Modal";
 
-interface AppProps {
-  user: userReducerState;
-  controls: controlsState;
-  closeModal(): closeModalAction;
-  logInUser(id: string): Promise<void>;
+interface Props {
+}
+
+export interface ServoData {
+  name: string;
+  pos: number;
+  speed: number;
+}
+
+interface State {
+  isAuth: boolean;
+  servos: ServoData[];
+  error: string | null;
+}
+
+export interface SequenceType {
+  seqName: string;
+  moves: ServoData[];
+}
+
+export interface IoT {
+  ledIsOn: boolean,
+  seq: SequenceType[]
+  servos: ServoData[]
 }
 
 const cookie = new Cookies();
 
-class App extends React.Component<AppProps> {
+class App extends React.Component<Props, State> {
+
+  private readonly client: UserService;
+  private controls?: IoT;
+
+  public constructor(props: Props) {
+    super(props);
+
+    this.state = {
+      isAuth: false,
+      servos: [],
+      error: null
+    }
+
+    this.client = new UserService(new RestApi(SERVER));
+  }
+
 
   componentDidMount() {
-    console.log(cookie.get("user"), "<= kukis");
+    this.client
+        .addObserver("onLoggedIn", this, this.onLoggedIn.bind(this))
+        .addObserver("onError", this, (message: string) => this.setState({error: message}));
     if (cookie.get("user")) {
-      this.props.logInUser(cookie.get("user"));
+      this.client.logIn(cookie.get("user"));
     }
-    console.log("before render");
+  }
+
+  private onLoggedIn(data: IoT): void {
+    this.controls = data;
+    this.setState({
+      isAuth: true
+    })
+  }
+
+  componentWillUnmount() {
+    this.client.removeObserver(this);
+  }
+
+  private onModalClose(): void {
+    this.setState({error: null})
   }
 
   render() {
-    const { auth } = this.props.user;
-    if (cookie.get("user") && !auth) return <Spinner />;
-    return auth && this.props.controls.initialized ? (
-      <ControlPanel />
+    const { isAuth, error } = this.state;
+    if (cookie.get("user") && !isAuth) return <Spinner />;
+    return isAuth ? (
+      this.controls && <ControlPanel
+          controls={this.controls}
+          client={this.client}/>
     ) : (
       <React.Fragment>
-        <LogIn />
-        {this.props.user.errorMessage !== null && (
+        <LogIn client={this.client}/>
+        {error && (
           <Modal
-            click={this.props.closeModal}
-            title={this.props.user.errorMessage}
+            click={() => this.onModalClose()}
+            title={error}
           />
         )}
       </React.Fragment>
@@ -49,11 +99,5 @@ class App extends React.Component<AppProps> {
   }
 }
 
-const mapStateToProps = (state: StoreState) => {
-  return {
-    user: state.user,
-    controls: state.controls,
-  };
-};
+export default App;
 
-export default connect(mapStateToProps, { closeModal, logInUser })(App);

@@ -11,7 +11,7 @@ import Alert from "@material-ui/lab/Alert";
 
 interface ModalProps {
   title: string;
-  click(): closeModalAction | CloseControllerErrorModal;
+  click(): any;
 }
 
 const Modal = (props: ModalProps) => {

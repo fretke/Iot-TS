@@ -1,45 +1,42 @@
 import React from "react";
-import { connect } from "react-redux";
-
-import {
-  initializeUser,
-  closeModal,
-  closeModalAction,
-} from "../../store/Actions";
-import { StoreState } from "../../store/Reducers/index";
-import { userReducerState } from "../../store/Reducers/userReducer";
 import styles from "./LogIn.module.css";
+import {UserService} from "../../services/UserService";
+
+
+interface Props {
+  client: UserService;
+}
 
 export interface LogInState {
   email: string;
   pass: string;
 }
 
-interface LogInProps {
-  initializeUser(data: LogInState): Promise<void>;
-  closeModal(): closeModalAction;
-  user: userReducerState;
-}
+class LogIn extends React.Component<Props, LogInState> {
 
-class LogIn extends React.Component<LogInProps> {
-  state: LogInState = {
-    email: "",
-    pass: "",
-  };
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      email: "",
+      pass: "",
+    }
+  }
 
-  logInUser = (): void => {
-    this.props.initializeUser(this.state);
+  private onLogIn (): void {
+    const {email, pass} = this.state;
+    this.props.client.initialize({email, pass})
 
     console.log("logging in");
   };
 
-  handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+  private onInputChange(event: React.ChangeEvent<HTMLInputElement>): void {
     const { name, value } = event.target;
-    this.setState({
-      [name]: value,
-    });
-    console.log(event.target.type);
-  };
+    if (name === "email") {
+      this.setState({email: value})
+    } else {
+      this.setState({pass: value})
+    }
+  }
 
   render() {
     return (
@@ -49,7 +46,7 @@ class LogIn extends React.Component<LogInProps> {
           <p>Email</p>
           <input
             placeholder="enter e-mail"
-            onChange={this.handleChange}
+            onChange={(e) => this.onInputChange(e)}
             type="text"
             name="email"
             value={this.state.email}
@@ -57,22 +54,16 @@ class LogIn extends React.Component<LogInProps> {
           <p>Password</p>
           <input
             placeholder="enter password"
-            onChange={this.handleChange}
+            onChange={(e) => this.onInputChange(e)}
             type="password"
             name="pass"
             value={this.state.pass}
           />
-          <button onClick={this.logInUser}>Log In</button>
+          <button onClick={() => this.onLogIn()}>Log In</button>
         </div>
       </div>
     );
   }
 }
 
-const mapStateToProps = (state: StoreState) => {
-  return {
-    user: state.user,
-  };
-};
-
-export default connect(mapStateToProps, { initializeUser, closeModal })(LogIn);
+export default LogIn;

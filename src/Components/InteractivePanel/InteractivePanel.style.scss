@@ -1,0 +1,98 @@
+
+  .interactive-panel {
+    width: 50%;
+    height: 90%;
+    background-color: #FFF;
+    margin: 0 auto;
+    border-radius: 7px;
+    position: relative;
+
+    &:hover {
+      box-shadow: -5px 5px 10px rgba(0, 0, 0, .2);
+      background-color: rgba(255,151,29, .1);
+      cursor: pointer;
+
+    }
+
+
+
+    >div{
+      &:first-child {
+        transition-duration: .1s;
+        width: 40px;
+        height: 40px;
+        background-color: #cd5334;
+        position: absolute;
+        left: -150px;
+        bottom: 20%;
+        border-radius: 50%;
+        &:hover{
+          //cursor: none;
+        }
+
+        //&:hover{
+        //  transform: rotate(180deg);
+        //}
+        >div {
+          position: absolute;
+          right: 50%;
+          top: 50%;
+          width: 100%;
+          height: 2px;
+          background-color: #74dac6;
+          border-radius: 10px;
+        }
+      }
+      &:nth-child(2) {
+        transition-duration: .1s;
+        width: 40px;
+        height: 40px;
+        background-color: #cd5334;
+        position: absolute;
+        right: -150px;
+        bottom: 20%;
+        border-radius: 50%;
+
+        >div {
+          position: absolute;
+          right: 50%;
+          top: -50%;
+          width: 2px;
+          height: 100%;
+          background-color: #74dac6;
+          border-radius: 10px;
+        }
+      }
+
+    }
+
+    //&:hover {
+    //  &:before {
+    //    content: "";
+    //    position: absolute;
+    //    bottom: 10px;
+    //    left: 10%;
+    //    width: 90%;
+    //    height: 50px;
+    //    background: rgba(0, 0, 0, 0.3);
+    //    transform-origin: 10%;
+    //    transform: skewY(4deg);
+    //    z-index: -1;
+    //    filter: blur(5px);
+    //  }
+    //
+    //  &:after {
+    //    content: "";
+    //    position: absolute;
+    //    bottom: -10px;
+    //    left: 0;
+    //    width: 50%;
+    //    height: 50px;
+    //    background: rgba(0, 0, 0, 0.3);
+    //    transform-origin: left;
+    //    transform: skewY(-4deg);
+    //    z-index: -1;
+    //    filter: blur(5px);
+    //  }
+    }
+

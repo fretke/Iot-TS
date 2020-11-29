@@ -22,6 +22,14 @@ export class Media extends React.Component<Props, State> {
     public componentDidMount(): void {
         const media = MediaService.instance;
         media.addObserver(MediaEvents.IncomingFrame, this, this.onMediaUpdate.bind(this));
+        const pic = media.lastPicture;
+        if (pic) {
+            this.onMediaUpdate(pic);
+        }
+    }
+
+    public componentWillUnmount(): void {
+        MediaService.instance.removeObserver(this);
     }
 
     public onMediaUpdate(url: string): void {

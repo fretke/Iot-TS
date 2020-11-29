@@ -33,7 +33,8 @@ export enum ConnectionTypes {
 
 export enum OutgoingEvents {
     UpdateDevice = "UpdateDevice",
-    UpdateServo = "UpdateServo"
+    UpdateServo = "UpdateServo",
+    LiveControl = "LiveControl"
 
 }
 
@@ -108,6 +109,10 @@ export class SocketService extends EventManager {
 
     public moveServo(data: servoData) {
         this.socket.emit(OutgoingEvents.UpdateServo, data);
+    }
+
+    public speedMove(data: servoData) {
+        this.socket.emit(OutgoingEvents.LiveControl, data);
     }
 
     public executeSequence(data: servoData[]) {

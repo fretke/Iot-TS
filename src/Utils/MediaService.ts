@@ -1,4 +1,5 @@
 import {MEDIA_SERVER} from "../Settings/settings";
+import {EventManager} from "../services/EventManager";
 
 export enum MediaWSActions {
     Authenticate = "Authenticate",
@@ -9,17 +10,22 @@ export enum MediaEvents {
     IncomingFrame = "IncomingFrame"
 }
 
-export class MediaService {
-    private _listeners: Map<string, Array<(arg?: any) => void>> = new Map();
+export class MediaService extends EventManager {
     private _userId: string = "";
+    private _lastPicture: string = "";
     private _mediaSocket: WebSocket = {} as WebSocket;
     private static _instance: MediaService = new MediaService();
 
     private constructor() {
+        super();
     }
 
     public static get instance(): MediaService {
         return this._instance;
+    }
+
+    get lastPicture(): string {
+        return this._lastPicture;
     }
 
     set userId(value: string) {
@@ -35,17 +41,6 @@ export class MediaService {
         this._mediaSocket.close();
     }
 
-    public addObserver(event: string, component: any, cb: (arg?: any) => void): void{
-        const currentListeners = this._listeners.get(event) || [];
-        currentListeners.push(cb);
-        this._listeners.set(event, currentListeners);
-        console.log(this._listeners, "all listeners for media");
-    }
-
-    private dispatch(event: string, arg?: any): void {
-        const allListeners = this._listeners.get(event) || [];
-        allListeners.forEach((cb) => cb(arg));
-    }
     private manageMediaEvents(): void {
         let urlObject: string;
         this._mediaSocket.onopen = () => this.broadcast(MediaWSActions.Authenticate);
@@ -57,7 +52,8 @@ export class MediaService {
                     URL.revokeObjectURL(urlObject)
                 }
                 urlObject = URL.createObjectURL(new Blob([arrayBuffer]));
-                this.dispatch(MediaEvents.IncomingFrame, urlObject);
+                this.dispatchEvent(MediaEvents.IncomingFrame, urlObject);
+                this._lastPicture = urlObject;
             }
 
         }

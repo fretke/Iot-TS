@@ -1,49 +1,47 @@
-import axios from "axios";
 import {SocketService} from "../Utils/SocketService";
 import {EventManager} from "./EventManager";
 import {ServoData} from "../App";
+import {RestApi} from "./RestApi";
 
 
 export default class ControlsService extends EventManager {
 
-    private readonly restServer: string;
     private readonly userEmail: string;
     private readonly iD: string;
     private readonly wsServer: SocketService;
+    private readonly restApi: RestApi;
     private servoList: Map<string, Servo> = new Map();
 
     constructor(restServer: string, email: string, id: string) {
         super();
-        this.restServer = restServer;
+        this.restApi = new RestApi(restServer);
         this.userEmail = email;
         this.wsServer = new SocketService(id).init(this)
         this.iD = id;
     }
 
-    private async sendRequest<T extends Object>(url: string, data: T): Promise<void> {
-        // todo implement request fully with error handling
-        try {
-            const res = await axios.post(url, data);
-        } catch (e) {
-
-        }
-    }
-
     public async moveServo (servoData: ServoData): Promise<void> {
-        this.wsServer.moveServo(servoData);
         const data = {
             userEmail: this.userEmail,
             id: this.iD,
             ...servoData
         }
-        const url = `${this.restServer}/updateServo`;
-        await this.sendRequest(url, data);
+        await this.restApi.sendRequest("/updateServo", data)
+        this.wsServer.moveServo(servoData);
         this.updateServo(servoData)
 
     }
 
+    public speedMove(servoData: ServoData): void {
+        this.wsServer.speedMove(servoData);
+    }
+
     public playSequence (data : ServoData[]): void {
         this.wsServer.executeSequence(data);
+    }
+
+    public async deleteSequence(title: string, userEmail: string): Promise<void> {
+        await this.restApi.sendRequest("/deleteSequence", {title, userEmail});
     }
 
     public async toggleDevice(status: boolean): Promise<void> {

@@ -13,6 +13,7 @@ import {IncomingEvents} from "../../Utils/SocketService";
 import Spinner from "../../Components/Spinner/Spinner";
 import Modal from "../../Components/Modal/Modal";
 import SeqPanel from "../../Components/SeqPanel/SeqPanel";
+import {InteractivePanel} from "../../Components/InteractivePanel/InteractivePanel";
 
 export interface ControlPanelProps {
     controls: IoT;
@@ -24,6 +25,7 @@ interface State {
     seq: SequenceType[];
     busy: boolean;
     error?: string | null;
+    showControlPad: boolean;
 }
 
 class ControlPanel extends React.Component<ControlPanelProps, State> {
@@ -40,6 +42,7 @@ class ControlPanel extends React.Component<ControlPanelProps, State> {
             servos: this.props.controls.servos,
             seq: this.props.controls.seq,
             busy: false,
+            showControlPad: false
         }
     }
 
@@ -59,6 +62,11 @@ class ControlPanel extends React.Component<ControlPanelProps, State> {
             .addObserver(IncomingEvents.SequenceOver, this, this.onSequenceOver.bind(this))
     }
 
+    public componentWillUnmount() {
+        this.controlsManager.disconnect();
+        MediaService.instance.disconnect();
+    }
+
     private onSequenceOver(data: ServoData[]): void {
         console.log(data, "data");
         const updated = this.state.servos.map((servo) => {
@@ -72,13 +80,7 @@ class ControlPanel extends React.Component<ControlPanelProps, State> {
             return servo;
         })
 
-        // console.log("updating after sequence end");
         this.setState({servos: updated})
-    }
-
-    public componentWillUnmount() {
-        this.controlsManager.disconnect();
-        MediaService.instance.disconnect();
     }
 
     private onModalClose(): void {
@@ -87,9 +89,14 @@ class ControlPanel extends React.Component<ControlPanelProps, State> {
         })
     }
 
+    private showPad(): void {
+        const show = !this.state.showControlPad;
+        this.setState({showControlPad: show})
+    }
+
     render() {
 
-        const {busy, servos, error} = this.state;
+        const {busy, servos, error, showControlPad} = this.state;
 
         const allServoMotors = servos.map(
             (servo, index): JSX.Element => {
@@ -111,13 +118,18 @@ class ControlPanel extends React.Component<ControlPanelProps, State> {
                     <DeviceToggler controlsManager={this.controlsManager}/>
                 </section>
                 <div className={"main-grid"}>
-                    <Media/>
-                    <div className={"motor-controls"}>{allServoMotors}</div>
+                    {!showControlPad ? <Media/> : <InteractivePanel controlsManager={this.controlsManager} />}
+                    <div className={"motor-controls"}>
+                        {allServoMotors}
+                        <button className={"large"} onClick={() => this.showPad()}>{showControlPad ? "SHOW MEDIA" : "SHOW CONTROL PAD"}</button>
+                    </div>
                 </div>
 
-                <SeqPanel
-                    seq={this.state.seq}
-                    controlsManager={this.controlsManager}/>
+                <div className={"bottom-grid"}>
+                    <SeqPanel
+                        seq={this.state.seq}
+                        controlsManager={this.controlsManager}/>
+                </div>
                 {busy && <Spinner/>}
                 {error && (
                     <Modal

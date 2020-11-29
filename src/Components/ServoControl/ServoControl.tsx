@@ -95,8 +95,8 @@ class ServoControl extends React.Component<Props, State> {
                             <legend>{name}</legend>
                             <div className={"wrapper"}>
                                 <div>
-                                    <label>Position</label>
-                                    <label>Speed</label>
+                                    <label>POSITION</label>
+                                    <label>SPEED</label>
                                 </div>
                                 <div>
                                     <input
@@ -108,7 +108,7 @@ class ServoControl extends React.Component<Props, State> {
                                         name={"speed"}
                                         value = {speed} />
                                 </div>
-                                <button onClick={() => this.onMoveHandler()}>move</button>
+                                <button className={"small"} onClick={() => this.onMoveHandler()}>move</button>
                                 {seqCreation && (
                                     <IconButton
                                         // onClick={() => this.saveServoDataToSeq()}

@@ -4,9 +4,7 @@ import IconButton from "@material-ui/core/IconButton";
 import SaveIcon from "@material-ui/icons/Save";
 
 import "./ServoControls.style.scss";
-import ControlsService from "../../services/ControlsService";
-import {IncomingEvents} from "../../Utils/SocketService";
-import {ServoData} from "../../App";
+import ControlsService, {ServoData} from "../../services/ControlsService";
 
 interface Props {
     controlsManager: ControlsService
@@ -46,7 +44,7 @@ class ServoControl extends React.Component<Props, State> {
         })
 
         this.props.controlsManager.addObserver(
-            `${IncomingEvents.OnServoUpdate}${this.props.name}`,
+            `onServoUpdate${this.props.name}`,
             this,
             this.onDeviceUpdate.bind(this));
     }

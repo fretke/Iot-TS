@@ -3,8 +3,6 @@ import styles from "./Modal.module.css";
 import { connect } from "react-redux";
 import {
   closeModal,
-  closeModalAction,
-  CloseControllerErrorModal,
 } from "../../store/Actions";
 
 import Alert from "@material-ui/lab/Alert";

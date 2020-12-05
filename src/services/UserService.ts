@@ -1,9 +1,15 @@
 import {RestApi} from "./RestApi";
-import {EventManager} from "./EventManager";
+import {EventManager, Events} from "./EventManager";
 import {LogInState} from "../Components/LogIn/LogIn";
 import Cookies from "universal-cookie";
+import {IoT} from "../App";
 
-export class UserService extends EventManager {
+export interface UserServiceEvents extends Events {
+    onLoggedIn: (data: IoT) => void,
+    onError: (message: string) => void
+}
+
+export class UserService extends EventManager<UserServiceEvents> {
     private _isAuth: boolean = false;
     private _userName: string = "";
     private _userEmail: string = "";

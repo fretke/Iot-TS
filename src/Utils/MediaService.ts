@@ -1,16 +1,16 @@
 import {MEDIA_SERVER} from "../Settings/settings";
-import {EventManager} from "../services/EventManager";
+import {EventManager, Events} from "../services/EventManager";
 
 export enum MediaWSActions {
     Authenticate = "Authenticate",
     GetPicture = "GetPicture"
 }
 
-export enum MediaEvents {
-    IncomingFrame = "IncomingFrame"
+export interface MediaEvents extends Events {
+    incomingFrame: (url: string) => void
 }
 
-export class MediaService extends EventManager {
+export class MediaService extends EventManager<MediaEvents> {
     private _userId: string = "";
     private _lastPicture: string = "";
     private _mediaSocket: WebSocket = {} as WebSocket;
@@ -52,7 +52,7 @@ export class MediaService extends EventManager {
                     URL.revokeObjectURL(urlObject)
                 }
                 urlObject = URL.createObjectURL(new Blob([arrayBuffer]));
-                this.dispatchEvent(MediaEvents.IncomingFrame, urlObject);
+                this.dispatchEvent("incomingFrame", urlObject);
                 this._lastPicture = urlObject;
             }
 

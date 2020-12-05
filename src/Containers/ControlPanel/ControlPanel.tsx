@@ -5,11 +5,10 @@ import ServoControl from "../../Components/ServoControl/ServoControl";
 import "./ControlPanel.style.scss";
 import {MediaService, MediaWSActions} from "../../Utils/MediaService";
 import {Media} from "../../Components/Media/Media";
-import ControlsService from "../../services/ControlsService";
+import ControlsService, {SequenceType, ServoData} from "../../services/ControlsService";
 import {SERVER} from "../../Settings/settings";
 import {UserService} from "../../services/UserService";
-import {IoT, SequenceType, ServoData} from "../../App";
-import {IncomingEvents} from "../../Utils/SocketService";
+import {IoT} from "../../App";
 import Spinner from "../../Components/Spinner/Spinner";
 import Modal from "../../Components/Modal/Modal";
 import SeqPanel from "../../Components/SeqPanel/SeqPanel";
@@ -47,19 +46,20 @@ class ControlPanel extends React.Component<ControlPanelProps, State> {
     }
 
     public componentDidMount(): void {
+        this.controlsManager.start();
         MediaService.instance.init();
         this.controlsManager.initializeServos(this.state.servos);
         this.controlsManager
-            .addObserver(IncomingEvents.OnBusyChange, this, (busy: boolean) => {
+            .addObserver("onBusyChange", this, (busy: boolean) => {
                 this.setState({busy})
             })
-            .addObserver(IncomingEvents.NotConnected, this, (message: string) => {
+            .addObserver("notConnected", this, (message: string) => {
                 this.setState({
                     busy: false,
                     error: message
                 })
             })
-            .addObserver(IncomingEvents.SequenceOver, this, this.onSequenceOver.bind(this))
+            .addObserver("onSequenceOver", this, this.onSequenceOver.bind(this));
     }
 
     public componentWillUnmount() {

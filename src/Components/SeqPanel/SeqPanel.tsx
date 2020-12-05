@@ -1,8 +1,7 @@
 import React from "react";
 import SequenceCreator from "./SequenceCreator/SequenceCreator";
 import styles from "./SeqPanel.module.css";
-import ControlsService from "../../services/ControlsService";
-import {SequenceType} from "../../App";
+import ControlsService, {SequenceType} from "../../services/ControlsService";
 import Sequence from "./Sequence/Sequence";
 
 interface SeqPanelProps {

@@ -54,7 +54,7 @@ export class InteractivePanel extends React.Component<Props, State> {
     }
 
     public render(): React.ReactNode {
-        const {showHint, xPos, yPos} = this.state;
+        const {xPos, yPos} = this.state;
         const rotationX = {transform: `rotate(${xPos}deg)`}
         const rotationY = {transform: `rotate(${yPos}deg)`}
         return (

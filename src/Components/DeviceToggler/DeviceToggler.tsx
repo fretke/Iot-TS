@@ -13,8 +13,6 @@ import Switch from "@material-ui/core/Switch";
 import { StoreState } from "../../store/Reducers";
 import { userReducerState } from "../../store/Reducers/userReducer";
 import { controlsState } from "../../store/Reducers/controlsReducer";
-import {IncomingEvents, ServoMoveMessage, SocketService} from "../../Utils/SocketService";
-import {StateManager} from "../../Utils/StateManager";
 
 import "./DeviceToggler.scss"
 import ControlsService from "../../services/ControlsService";
@@ -51,7 +49,7 @@ class DeviceToggler extends React.Component<Props, State> {
   // };
 
   public componentDidMount(): void {
-    this.props.controlsManager.addObserver(IncomingEvents.ToggleDevice, this, () => {
+    this.props.controlsManager.addObserver("onDeviceToggle", this, () => {
       this.setState({isOn: !this.state.isOn})
     })
   }

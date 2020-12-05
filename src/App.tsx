@@ -7,25 +7,15 @@ import {UserService} from "./services/UserService";
 import {SERVER} from "./Settings/settings";
 import {RestApi} from "./services/RestApi";
 import Modal from "./Components/Modal/Modal";
+import {SequenceType, ServoData} from "./services/ControlsService";
 
 interface Props {
-}
-
-export interface ServoData {
-  name: string;
-  pos: number;
-  speed: number;
 }
 
 interface State {
   isAuth: boolean;
   servos: ServoData[];
   error: string | null;
-}
-
-export interface SequenceType {
-  seqName: string;
-  moves: ServoData[];
 }
 
 export interface IoT {

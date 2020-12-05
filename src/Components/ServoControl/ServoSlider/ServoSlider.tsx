@@ -27,7 +27,7 @@ interface ServoSliderProps {
   user: userReducerState;
   controls: controlsState;
   servoName: string;
-  socketService: SocketService
+  // socketService: SocketService
   updateServo(
     servoName: string,
     property: Property,

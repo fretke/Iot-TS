@@ -1,5 +1,5 @@
-import React, {ImgHTMLAttributes} from "react";
-import {MediaEvents, MediaService} from "../../Utils/MediaService";
+import React from "react";
+import {MediaService} from "../../Utils/MediaService";
 import "./Media.style.scss"
 
 interface Props {
@@ -21,7 +21,7 @@ export class Media extends React.Component<Props, State> {
 
     public componentDidMount(): void {
         const media = MediaService.instance;
-        media.addObserver(MediaEvents.IncomingFrame, this, this.onMediaUpdate.bind(this));
+        media.addObserver("incomingFrame", this, this.onMediaUpdate.bind(this));
         const pic = media.lastPicture;
         if (pic) {
             this.onMediaUpdate(pic);
@@ -39,7 +39,7 @@ export class Media extends React.Component<Props, State> {
     public render(): React.ReactNode {
         return (
             <div className={"media"}>
-                <img ref={this.imgRef} src={""}/>
+                <img alt={"pic"} ref={this.imgRef} src={""}/>
             </div>
         )
     }

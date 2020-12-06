@@ -1,13 +1,13 @@
 interface Admisable {
     target: Object,
-    cb: any,
+    cb: Function,
 }
 
 export interface Events {
     [key: string]: ({...arg}: any) => any
 }
 
-export class EventManager<T> {
+export class EventManager<T extends Events> {
 
     private readonly _listenerMap: Map<keyof T, Array<Admisable>> = new Map();
 
@@ -18,7 +18,7 @@ export class EventManager<T> {
             if (listeners.target === target) return this;
         }
 
-        temp.push({target, cb});
+        temp.push({target, cb: cb.bind(target)});
         this._listenerMap.set(event, temp)
         return this;
     }

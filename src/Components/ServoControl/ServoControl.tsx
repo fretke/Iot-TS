@@ -42,31 +42,18 @@ class ServoControl extends React.Component<Props, State> {
         this.props.controlsManager.addObserver("onSequenceCreation", this, () => {
             this.setState({seqCreation: !this.state.seqCreation});
         })
-
-        this.props.controlsManager.addObserver(
-            `onServoUpdate${this.props.name}`,
-            this,
-            this.onDeviceUpdate.bind(this));
-    }
-
-    public onDeviceUpdate(data: ServoData): void {
-        this.setState({
-            pos: data.pos,
-            speed: data.speed
-        })
     }
 
     public componentWillUnmount(): void {
         this.props.controlsManager.removeObserver(this);
     }
 
-    // saveServoDataToSeq = () => {
-    //     let {name, pos, speed} = this.props.controls.servos.filter((servo) => {
-    //         return servo.name === this.props.servoName;
-    //     })[0];
-    //     const savableData = [{name, pos, speed}];
-    //     this.props.addNewSequenceElement(savableData);
-    // };
+    private saveNewMove(): void {
+        const {controlsManager, name} = this.props;
+        const {pos, speed} = this.state;
+        const move: ServoData = {name, pos, speed};
+        controlsManager.dispatchEvent("onNewMoveAdded", move);
+    }
 
     private onInputChange (e: ChangeEvent<HTMLInputElement>): void {
         const {name, value} = e.target;
@@ -109,7 +96,7 @@ class ServoControl extends React.Component<Props, State> {
                                 <button className={"small"} onClick={() => this.onMoveHandler()}>move</button>
                                 {seqCreation && (
                                     <IconButton
-                                        // onClick={() => this.saveServoDataToSeq()}
+                                        onClick={() => this.saveNewMove()}
                                         aria-label="save"
                                         color="primary"
                                     >

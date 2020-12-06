@@ -33,7 +33,7 @@ export enum IncomingEvents {
     onSequenceOver = "onSequenceOver"
 }
 
-export interface ControlServiceEvents extends wsActions{
+export interface ControlServiceWsEvents extends wsActions{
 
     onDeviceToggle: () => void;
     onServoUpdate: (data: ServoData) => void;
@@ -42,12 +42,18 @@ export interface ControlServiceEvents extends wsActions{
     onSequenceOver: (data: ServoData[]) => void;
 }
 
+export interface ControlServiceEvents extends ControlServiceWsEvents {
+    onSequenceDelete: (title: string) => void,
+    onSequenceAdded: (entry: SequenceType) => void,
+    onNewMoveAdded: (data: ServoData) => void
+}
+
 
 export default class ControlsService extends EventManager<ControlServiceEvents> {
 
     private readonly userEmail: string;
     private readonly iD: string;
-    private readonly wsServer: SocketService<ControlServiceEvents>;
+    private readonly wsServer: SocketService<ControlServiceWsEvents>;
     private readonly restApi: RestApi;
     private servoList: Map<string, Servo> = new Map();
 
@@ -62,9 +68,9 @@ export default class ControlsService extends EventManager<ControlServiceEvents> 
     }
 
     public start(): void {
-        const actionHandlers : ControlServiceEvents = {
+        const actionHandlers : ControlServiceWsEvents = {
             onDeviceToggle: () => this.dispatchEvent("onDeviceToggle"),
-            onServoUpdate: (data: ServoData) => this.updateServo(data).dispatchEvent(`onServoUpdate${data.name}`, data),
+            onServoUpdate: (data: ServoData) => this.updateServo(data).dispatchEvent(`onServoUpdate`, data),
             onUpdateFinished: () => this.finishedUpdate(),
             onUpdateStarted: () => this.startUpdate(),
             onSequenceOver: (data) => {
@@ -98,9 +104,9 @@ export default class ControlsService extends EventManager<ControlServiceEvents> 
             id: this.iD,
             ...servoData
         }
-        await this.restApi.sendRequest("/updateServo", data)
-        this.wsServer.sendRequest(OutgoingEvents.updateServo, data)
-        this.updateServo(servoData)
+        await this.restApi.sendRequest("/updateServo", data);
+        this.wsServer.sendRequest(OutgoingEvents.updateServo, data);
+        this.updateServo(servoData);
 
     }
 
@@ -112,8 +118,14 @@ export default class ControlsService extends EventManager<ControlServiceEvents> 
         this.wsServer.sendRequest(OutgoingEvents.executeSequence, data);
     }
 
-    public async deleteSequence(title: string, userEmail: string): Promise<void> {
-        await this.restApi.sendRequest("/deleteSequence", {title, userEmail});
+    public async deleteSequence(title: string): Promise<void> {
+        await this.restApi.sendRequest("/deleteSequence", {title, userEmail: this.userEmail});
+        this.dispatchEvent("onSequenceDelete", title);
+    }
+
+    public async saveSequence(newEntry: SequenceType): Promise<void> {
+        await this.restApi.sendRequest("/saveNewSequence", {userEmail: this.userEmail, newEntry});
+        this.dispatchEvent("onSequenceAdded", newEntry);
     }
 
     public async toggleDevice(status: boolean): Promise<void> {

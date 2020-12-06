@@ -1,46 +1,44 @@
 import React from "react";
-import { connect } from "react-redux";
-import { StoreState } from "../../../store/Reducers";
-import { seqState } from "../../../store/Reducers/sequenceReducer";
-
 import CustomTable from "../../CustomTable/CustomTable";
-
 import styles from "./SequenceCreator.module.css";
-
 import Button from "@material-ui/core/Button";
-import { saveNewSequence } from "../../../store/Actions";
-import { servoData } from "../../../store/Reducers/controlsReducer";
-import { userReducerState } from "../../../store/Reducers/userReducer";
+import ControlsService, {ServoData} from "../../../services/ControlsService";
 
-interface SequenceCreatorState {
-  seqTitle: string;
+interface State {
+  seqName: string;
+  moves: ServoData[]
 }
 
-interface SequenceCreatorProps {
-  seq: seqState;
-  user: userReducerState;
-  saveNewSequence(
-    title: string,
-    moves: servoData[],
-    userEmail: string
-  ): Promise<void>;
+interface Props {
+  controlsManager: ControlsService
 }
 
-class SequenceCreator extends React.Component<SequenceCreatorProps> {
-  state: SequenceCreatorState = {
-    seqTitle: "",
+export class SequenceCreator extends React.Component<Props, State> {
+
+  public constructor(props: Props) {
+    super(props);
+    this.state = {
+      seqName: "",
+      moves: []
+    }
+  }
+
+  public componentDidMount(): void {
+    this.props.controlsManager.addObserver("onNewMoveAdded", this, this.onNewMoveAdded);
+  }
+
+  private onNewMoveAdded(data: ServoData): void {
+    const moves = [...this.state.moves, data];
+      this.setState({moves: moves});
+  }
+
+  private seqNameEnterHandler (event: React.ChangeEvent<HTMLInputElement>): void {
+    this.setState({ seqName: event.target.value });
   };
 
-  seqNameEnterHandler = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    this.setState({ seqTitle: event.target.value });
-  };
-
-  saveNewSequenceHandler = () => {
-    this.props.saveNewSequence(
-      this.state.seqTitle,
-      this.props.seq.creationSeq,
-      this.props.user.userEmail
-    );
+  private saveNewSequence(): void {
+    const {seqName, moves} = this.state;
+    this.props.controlsManager.saveSequence({seqName, moves});
   };
 
   render() {
@@ -51,14 +49,14 @@ class SequenceCreator extends React.Component<SequenceCreatorProps> {
             onChange={(e) => this.seqNameEnterHandler(e)}
             type="text"
             name="seqName"
-            value={this.state.seqTitle}
+            value={this.state.seqName}
             id="seqName"
             placeholder="Sequence name"
           />
         </div>
-        <CustomTable tableData={this.props.seq.creationSeq} />
+        <CustomTable tableData={this.state.moves} />
         <Button
-          onClick={() => this.saveNewSequenceHandler()}
+          onClick={() => this.saveNewSequence()}
           variant="contained"
           color="primary"
           size="small"
@@ -70,11 +68,3 @@ class SequenceCreator extends React.Component<SequenceCreatorProps> {
   }
 }
 
-const mapStateToProps = (state: StoreState) => {
-  return {
-    seq: state.allSeq,
-    user: state.user,
-  };
-};
-
-export default connect(mapStateToProps, { saveNewSequence })(SequenceCreator);

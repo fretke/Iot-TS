@@ -6,7 +6,7 @@ import Cookies from "universal-cookie";
 import {UserService} from "./services/UserService";
 import {SERVER} from "./Settings/settings";
 import {RestApi} from "./services/RestApi";
-import Modal from "./Components/Modal/Modal";
+import {Modal} from "./Components/Modal/Modal";
 import {SequenceType, ServoData} from "./services/ControlsService";
 
 interface Props {

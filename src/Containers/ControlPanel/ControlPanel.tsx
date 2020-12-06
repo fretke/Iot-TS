@@ -10,7 +10,7 @@ import {SERVER} from "../../Settings/settings";
 import {UserService} from "../../services/UserService";
 import {IoT} from "../../App";
 import Spinner from "../../Components/Spinner/Spinner";
-import Modal from "../../Components/Modal/Modal";
+import {Modal} from "../../Components/Modal/Modal";
 import SeqPanel from "../../Components/SeqPanel/SeqPanel";
 import {InteractivePanel} from "../../Components/InteractivePanel/InteractivePanel";
 
@@ -25,6 +25,7 @@ interface State {
     busy: boolean;
     error?: string | null;
     showControlPad: boolean;
+    showSequence: boolean;
 }
 
 class ControlPanel extends React.Component<ControlPanelProps, State> {
@@ -41,7 +42,8 @@ class ControlPanel extends React.Component<ControlPanelProps, State> {
             servos: this.props.controls.servos,
             seq: this.props.controls.seq,
             busy: false,
-            showControlPad: false
+            showControlPad: false,
+            showSequence: false
         }
     }
 
@@ -50,16 +52,12 @@ class ControlPanel extends React.Component<ControlPanelProps, State> {
         MediaService.instance.init();
         this.controlsManager.initializeServos(this.state.servos);
         this.controlsManager
-            .addObserver("onBusyChange", this, (busy: boolean) => {
-                this.setState({busy})
-            })
-            .addObserver("notConnected", this, (message: string) => {
-                this.setState({
-                    busy: false,
-                    error: message
-                })
-            })
-            .addObserver("onSequenceOver", this, this.onSequenceOver.bind(this));
+            .addObserver("onBusyChange", this, (busy: boolean) => this.setState({busy}))
+            .addObserver("notConnected", this, this.onError)
+            .addObserver("onSequenceOver", this, this.onSequenceOver)
+            .addObserver("onSequenceDelete", this, this.deleteSequence)
+            .addObserver("onServoUpdate", this, this.onServoUpdate)
+            .addObserver("onSequenceAdded", this, this.addSequence);
     }
 
     public componentWillUnmount() {
@@ -67,18 +65,44 @@ class ControlPanel extends React.Component<ControlPanelProps, State> {
         MediaService.instance.disconnect();
     }
 
+    private addSequence(entry: SequenceType): void {
+        this.setState({seq: [...this.state.seq, entry]})
+    }
+
+    private deleteSequence(title: string): void {
+        const updatedSequences = this.state.seq.filter((seq) => seq.seqName !== title);
+        this.setState({seq: updatedSequences});
+    }
+
+    private onError(message: string): void {
+        this.setState({
+            busy: false,
+            error: message
+        });
+    }
+
+    private onServoUpdate(data: ServoData): void {
+        const updated = this.state.servos.map((servo) => {
+            if (servo.name === data.name){
+                Object.assign(servo, data);
+                return servo;
+            }
+            return servo;
+        });
+        this.setState({servos: updated})
+    }
+
     private onSequenceOver(data: ServoData[]): void {
-        console.log(data, "data");
         const updated = this.state.servos.map((servo) => {
             for (const s of data){
                 if (servo.name === s.name) {
-                    servo.speed = s.speed;
-                    servo.pos = s.pos;
+                    servo.speed = +s.speed;
+                    servo.pos = +s.pos;
                     return servo;
                 }
             }
             return servo;
-        })
+        });
 
         this.setState({servos: updated})
     }
@@ -96,7 +120,7 @@ class ControlPanel extends React.Component<ControlPanelProps, State> {
 
     render() {
 
-        const {busy, servos, error, showControlPad} = this.state;
+        const {busy, servos, error, showControlPad, showSequence} = this.state;
 
         const allServoMotors = servos.map(
             (servo, index): JSX.Element => {
@@ -111,6 +135,14 @@ class ControlPanel extends React.Component<ControlPanelProps, State> {
                 );
             }
         );
+
+        let mainWindow: React.ReactNode = <Media />;
+
+        if (showControlPad) mainWindow = (<InteractivePanel controlsManager={this.controlsManager} />);
+        if (showSequence) mainWindow = (<SeqPanel
+            seq={this.state.seq}
+            controlsManager={this.controlsManager}/>)
+
         return (
             <div className={"control-panel"}>
 
@@ -118,7 +150,7 @@ class ControlPanel extends React.Component<ControlPanelProps, State> {
                     <DeviceToggler controlsManager={this.controlsManager}/>
                 </section>
                 <div className={"main-grid"}>
-                    {!showControlPad ? <Media/> : <InteractivePanel controlsManager={this.controlsManager} />}
+                    {mainWindow}
                     <div className={"motor-controls"}>
                         {allServoMotors}
                         <button className={"large"} onClick={() => this.showPad()}>{showControlPad ? "SHOW MEDIA" : "SHOW CONTROL PAD"}</button>
@@ -126,9 +158,7 @@ class ControlPanel extends React.Component<ControlPanelProps, State> {
                 </div>
 
                 <div className={"bottom-grid"}>
-                    <SeqPanel
-                        seq={this.state.seq}
-                        controlsManager={this.controlsManager}/>
+                    <button onClick={() => this.setState({showSequence: !this.state.showSequence})}> SHOW SEQUENCE </button>
                 </div>
                 {busy && <Spinner/>}
                 {error && (

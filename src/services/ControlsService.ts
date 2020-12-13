@@ -1,7 +1,7 @@
-import {SocketService, wsActions} from "../Utils/SocketService";
+import {SocketService, wsActions} from "./SocketService";
 import {EventManager} from "./EventManager";
 import {RestApi} from "./RestApi";
-import {MediaService, MediaWSActions} from "../Utils/MediaService";
+import {MediaService, MediaWSActions} from "./MediaService";
 import {SERVER} from "../Settings/settings";
 
 export interface SequenceType {

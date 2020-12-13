@@ -1,6 +1,6 @@
 import React from "react";
 import LogIn from "./Components/LogIn/LogIn";
-import ControlPanel from "./Containers/ControlPanel/ControlPanel";
+import {ControlPanel} from "./Containers/ControlPanel/ControlPanel";
 import Spinner from "./Components/Spinner/Spinner";
 import Cookies from "universal-cookie";
 import {UserService} from "./services/UserService";

@@ -1,9 +1,9 @@
 import React from "react";
-import DeviceToggler from "../../Components/DeviceToggler/DeviceToggler";
+import {DeviceToggler} from "../../Components/DeviceToggler/DeviceToggler";
 import ServoControl from "../../Components/ServoControl/ServoControl";
 
 import "./ControlPanel.style.scss";
-import {MediaService, MediaWSActions} from "../../Utils/MediaService";
+import {MediaService, MediaWSActions} from "../../services/MediaService";
 import {Media} from "../../Components/Media/Media";
 import ControlsService, {SequenceType, ServoData} from "../../services/ControlsService";
 import {SERVER} from "../../Settings/settings";
@@ -28,7 +28,7 @@ interface State {
     showSequence: boolean;
 }
 
-class ControlPanel extends React.Component<ControlPanelProps, State> {
+export class ControlPanel extends React.Component<ControlPanelProps, State> {
 
     private readonly controlsManager: ControlsService;
 
@@ -172,5 +172,3 @@ class ControlPanel extends React.Component<ControlPanelProps, State> {
         );
     }
 }
-
-export default ControlPanel;

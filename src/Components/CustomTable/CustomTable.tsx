@@ -1,9 +1,9 @@
 import React from "react";
-import { servoData } from "../../store/Reducers/controlsReducer";
 import styles from "./CustomTable.module.css";
+import {ServoData} from "../../services/ControlsService";
 
 interface CustomTableProps {
-  tableData: servoData[];
+  tableData: ServoData[];
 }
 
 const CustomTable = (props: CustomTableProps) => {

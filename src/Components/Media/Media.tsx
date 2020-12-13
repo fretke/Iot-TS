@@ -1,5 +1,5 @@
 import React from "react";
-import {MediaService} from "../../Utils/MediaService";
+import {MediaService} from "../../services/MediaService";
 import "./Media.style.scss"
 
 interface Props {

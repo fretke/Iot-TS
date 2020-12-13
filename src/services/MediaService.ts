@@ -1,5 +1,5 @@
 import {MEDIA_SERVER} from "../Settings/settings";
-import {EventManager, Events} from "../services/EventManager";
+import {EventManager, Events} from "./EventManager";
 
 export enum MediaWSActions {
     Authenticate = "Authenticate",

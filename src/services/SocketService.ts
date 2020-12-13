@@ -1,5 +1,5 @@
 import io from "socket.io-client";
-import {IncomingEvents} from "../services/ControlsService";
+import {IncomingEvents} from "./ControlsService";
 
 export interface wsActions {
     [key: string]: ({...arg}: any) => any

@@ -2,10 +2,11 @@ import React from "react";
 import Switch from "@material-ui/core/Switch";
 
 import "./DeviceToggler.scss"
-import ControlsService from "../../services/ControlsService";
+import ControlsService, {_Switch} from "../../services/ControlsService";
 
 interface Props {
-  controlsManager: ControlsService
+  controlsManager: ControlsService,
+  device: _Switch
 }
 
 interface State {
@@ -18,7 +19,7 @@ export class DeviceToggler extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      isOn: false
+      isOn: props.device.state
     }
   }
 
@@ -29,7 +30,7 @@ export class DeviceToggler extends React.Component<Props, State> {
   }
 
   public onToggle(): void {
-    this.props.controlsManager.toggleDevice(!this.state.isOn);
+    this.props.controlsManager.toggleDevice(this.props.device.name, !this.state.isOn);
     this.setState({isOn: !this.state.isOn});
   }
 

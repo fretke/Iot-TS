@@ -42,10 +42,12 @@ export class InteractivePanel extends React.Component<Props, State> {
             const yCord = Math.round((e.pageY - offsetTop) * (SERVO_MAX_STEPS / offsetHeight));
 
             if (Math.abs(xCord - xPos) > SERVO_PRECISION) {
+                // TODO: name must be dynamic
                 await this.props.controlsManager.speedMove({name: "firstServo", pos: xCord, speed: 99})
                 change = true;
             }
             if (Math.abs(yCord - yPos) > SERVO_PRECISION) {
+                // TODO: name must be dynamic
                 await this.props.controlsManager.speedMove({name: "secondServo", pos: yCord, speed: 99})
                 change = true;
             }

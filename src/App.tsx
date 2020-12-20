@@ -7,7 +7,7 @@ import {UserService} from "./services/UserService";
 import {SERVER} from "./Settings/settings";
 import {RestApi} from "./services/RestApi";
 import {Modal} from "./Components/Modal/Modal";
-import {SequenceType, ServoData} from "./services/ControlsService";
+import {SequenceType, ServoData, _Switch} from "./services/ControlsService";
 
 interface Props {
 }
@@ -21,7 +21,8 @@ interface State {
 export interface IoT {
   ledIsOn: boolean,
   seq: SequenceType[]
-  servos: ServoData[]
+  servos: ServoData[],
+  switches: _Switch[]
 }
 
 const cookie = new Cookies();
@@ -70,7 +71,7 @@ class App extends React.Component<Props, State> {
 
   render() {
     const { isAuth, error } = this.state;
-    if (cookie.get("user") && !isAuth) return <Spinner />;
+    if (cookie.get("user") && !isAuth) return <Spinner/>;
     return isAuth ? (
       this.controls && <ControlPanel
           controls={this.controls}

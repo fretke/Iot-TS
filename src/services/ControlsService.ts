@@ -10,9 +10,16 @@ export interface SequenceType {
 }
 
 export interface ServoData {
+    pin?: string;
     name: string;
     pos: number;
     speed: number;
+}
+
+export interface _Switch {
+    pin?: string,
+    name: string,
+    state: boolean
 }
 
 export enum OutgoingEvents {
@@ -128,8 +135,8 @@ export default class ControlsService extends EventManager<ControlServiceEvents> 
         this.dispatchEvent("onSequenceAdded", newEntry);
     }
 
-    public async toggleDevice(status: boolean): Promise<void> {
-        this.wsServer.sendRequest(OutgoingEvents.updateDevice, status);
+    public async toggleDevice(name: string, status: boolean): Promise<void> {
+        this.wsServer.sendRequest(OutgoingEvents.updateDevice, {name, status});
     }
 
     public initializeServos(data: ServoData[]): void {

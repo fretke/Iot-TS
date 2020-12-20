@@ -118,6 +118,14 @@ export class ControlPanel extends React.Component<ControlPanelProps, State> {
         this.setState({showControlPad: show})
     }
 
+    private renderSwitches(): React.ReactNode {
+        const {switches} = this.props.controls;
+        return switches.map((item, i) => <DeviceToggler
+            key={item.name + i}
+            device={item}
+            controlsManager={this.controlsManager} />)
+    }
+
     render() {
 
         const {busy, servos, error, showControlPad, showSequence} = this.state;
@@ -147,7 +155,7 @@ export class ControlPanel extends React.Component<ControlPanelProps, State> {
             <div className={"control-panel"}>
 
                 <section className={"top-grid"}>
-                    <DeviceToggler controlsManager={this.controlsManager}/>
+                    {this.renderSwitches()}
                 </section>
                 <div className={"main-grid"}>
                     {mainWindow}

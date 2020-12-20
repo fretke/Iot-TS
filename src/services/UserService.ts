@@ -57,7 +57,6 @@ export class UserService extends EventManager<UserServiceEvents> {
                 this._userName = res.userName;
                 this._id = res.id;
                 this.dispatchEvent("onLoggedIn", res.IoT);
-                console.log(res, "data received when logging");
                 return res.IoT;
             }
             console.log(res, "data received when logging");

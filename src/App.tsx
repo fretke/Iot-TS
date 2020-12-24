@@ -7,7 +7,7 @@ import {UserService} from "./services/UserService";
 import {SERVER} from "./Settings/settings";
 import {RestApi} from "./services/RestApi";
 import {Modal} from "./Components/Modal/Modal";
-import {SequenceType, ServoData, _Switch} from "./services/ControlsService";
+import {SequenceType, ServoData, _Switch, CompleteServoData} from "./services/ControlsService";
 
 interface Props {
 }
@@ -21,7 +21,7 @@ interface State {
 export interface IoT {
   ledIsOn: boolean,
   seq: SequenceType[]
-  servos: ServoData[],
+  servos: CompleteServoData[],
   switches: _Switch[]
 }
 

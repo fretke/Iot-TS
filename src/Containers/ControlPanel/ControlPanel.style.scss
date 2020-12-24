@@ -23,6 +23,10 @@
 .top-grid {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
+  > button {
+    width: 40%;
+    margin: 0 auto;
+  }
 }
 
 .main-grid {
@@ -74,9 +78,9 @@
       box-shadow: -3px 3px 5px rgba(0, 0, 0, .2);
       transition-duration: .3s;
 
-      &:hover{
-        transform: translateY(-1px);
-      }
+      //&:hover{
+      //  transform: translateY(-1px);
+      //}
     }
   }
 

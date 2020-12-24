@@ -3,6 +3,8 @@ import {EventManager} from "./EventManager";
 import {RestApi} from "./RestApi";
 import {MediaService, MediaWSActions} from "./MediaService";
 import {SERVER} from "../Settings/settings";
+import {IoT} from "../App";
+import {AVAILABLE_PINS} from "../Helpers/Helpers";
 
 export interface SequenceType {
     seqName: string;
@@ -16,8 +18,12 @@ export interface ServoData {
     speed: number;
 }
 
+export interface CompleteServoData extends ServoData {
+    pin: string;
+}
+
 export interface _Switch {
-    pin?: string,
+    pin: string,
     name: string,
     state: boolean
 }
@@ -52,7 +58,9 @@ export interface ControlServiceWsEvents extends wsActions{
 export interface ControlServiceEvents extends ControlServiceWsEvents {
     onSequenceDelete: (title: string) => void,
     onSequenceAdded: (entry: SequenceType) => void,
-    onNewMoveAdded: (data: ServoData) => void
+    onNewMoveAdded: (data: ServoData) => void,
+    onDeviceUpadte: (data: Device[]) => void,
+    onServoListUpdate: (data: CompleteServoData[]) => void
 }
 
 
@@ -63,6 +71,7 @@ export default class ControlsService extends EventManager<ControlServiceEvents> 
     private readonly wsServer: SocketService<ControlServiceWsEvents>;
     private readonly restApi: RestApi;
     private servoList: Map<string, Servo> = new Map();
+    private switchList: Map<string, Device> = new Map();
 
     private _timer: number | undefined;
 
@@ -76,6 +85,10 @@ export default class ControlsService extends EventManager<ControlServiceEvents> 
 
     public get servoMap(): Map<string, Servo> {
         return this.servoList;
+    }
+
+    public get switchMap(): Map<string, Device> {
+        return this.switchList;
     }
 
     public start(): void {
@@ -144,14 +157,60 @@ export default class ControlsService extends EventManager<ControlServiceEvents> 
         this.wsServer.sendRequest(OutgoingEvents.updateDevice, {name, status});
     }
 
-    public async addDevice(): Promise<void> {
-        await this.restApi.sendRequest("/addDevice", {email: this.userEmail});
+    public async addDevice(device: _Switch): Promise<void> {
+        await this.restApi.sendRequest("/addDevice", {email: this.userEmail, device});
+        this.switchMap.set(device.name, new Device(device.name, device.pin, device.state));
+        this.dispatchEvent("onDeviceUpdate", Array.from(this.switchMap.values()));
     }
 
-    public initializeServos(data: ServoData[]): void {
+    public async deleteDevice(name: string): Promise<void> {
+        await this.restApi.sendRequest("/deleteDevice", {email: this.userEmail, name});
+        this.switchMap.delete(name);
+        this.dispatchEvent("onDeviceUpdate", Array.from(this.switchMap.values()));
+    }
+
+    public async addServo(servo: CompleteServoData): Promise<void> {
+        const {name, pin, pos, speed} = servo
+        await this.restApi.sendRequest("/addServo", {email: this.userEmail, servo})
+        this.servoList.set(servo.name, new Servo(name, pos, speed, pin));
+        this.dispatchEvent("onServoListUpdate", Array.from(this.servoList.values()));
+    }
+
+    public async deleteServo(name: string): Promise<void> {
+        await this.restApi.sendRequest("/deleteServo", {email: this.userEmail, name})
+        this.servoList.delete(name);
+        this.dispatchEvent("onServoListUpdate", Array.from(this.servoList.values()));
+    }
+
+    public initializeServos(data: CompleteServoData[]): void {
         for (const servo of data) {
-            this.servoList.set(servo.name, new Servo(servo.name, servo.pos, servo.speed))
+            console.log(servo, "servo data");
+            this.servoList.set(servo.name, new Servo(servo.name, servo.pos, servo.speed, servo.pin))
         }
+    }
+
+    public initializeControls(data: IoT) {
+        // servo initialization
+        for (const servo of data.servos) {
+            const {name, speed, pos, pin} = servo;
+            this.servoList.set(name, new Servo(name, pos, speed, pin))
+        }
+        // switch initialization
+        for (const item of data.switches) {
+            const {name, pin, state} = item;
+            this.switchList.set(name, new Device(name, pin, state))
+        }
+    }
+
+    public getFreePins(): string[] {
+        const first = Array.from(this.switchList.values()).map((item) => item.pin);
+        const second = Array.from(this.servoList.values()).map((item) => item.pin);
+        const occupied = [...first, ...second];
+        console.log(first, "first");
+        console.log(second, "second");
+
+        return AVAILABLE_PINS.filter((pin) => occupied.indexOf(pin) === -1);
+
     }
 
     public updateServo (data: ServoData): ControlsService {
@@ -174,12 +233,14 @@ export class Servo {
     private readonly _name: string;
     private _position: number;
     private _speed: number;
+    private _pin: string;
 
 
-    constructor(name: string, position: number, speed: number) {
+    constructor(name: string, position: number, speed: number, pin: string) {
         this._name = name;
         this._position = position;
         this._speed = speed;
+        this._pin = pin;
     }
 
     get name(): string {
@@ -200,5 +261,25 @@ export class Servo {
 
     set speed(value: number) {
         this._speed = value;
+    }
+
+    get pin(): string {
+        return this._pin;
+    }
+
+    set pin(value: string) {
+        this._pin = value;
+    }
+}
+
+export class Device implements _Switch{
+    public readonly name: string;
+    public pin: string;
+    public state: boolean;
+
+    constructor(name: string, pin: string, state: boolean) {
+        this.name = name;
+        this.pin = pin;
+        this.state = state;
     }
 }

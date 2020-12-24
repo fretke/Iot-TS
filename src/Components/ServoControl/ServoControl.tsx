@@ -17,6 +17,7 @@ interface State {
     pos: number;
     speed: number;
     seqCreation: boolean;
+    showDeleteButton: boolean;
 }
 
 class ServoControl extends React.Component<Props, State> {
@@ -27,7 +28,8 @@ class ServoControl extends React.Component<Props, State> {
         this.state = {
             pos: currentPos,
             speed: currentSpeed,
-            seqCreation: false
+            seqCreation: false,
+            showDeleteButton: false,
         }
     }
 
@@ -69,13 +71,21 @@ class ServoControl extends React.Component<Props, State> {
         controlsManager.moveServo({name, speed, pos});
     }
 
+    private onDelete (): Promise<void> {
+        return this.props.controlsManager.deleteServo(this.props.name);
+    }
+
     render() {
-        const {pos, speed, seqCreation} = this.state;
+        const {pos, speed, seqCreation, showDeleteButton} = this.state;
         const {name} = this.props;
+
+        console.log(name, "servoName", pos, "servo pos");
         return (
             <>
-                <div className={"single-servo-grid"}>
-                    <div>
+                    <div
+                        onMouseEnter={() => this.setState({showDeleteButton: true})}
+                        onMouseLeave={() => this.setState({showDeleteButton: false})}
+                        className={"servo-container"}>
                         <fieldset>
                             <legend>{name}</legend>
                             <div className={"wrapper"}>
@@ -84,6 +94,7 @@ class ServoControl extends React.Component<Props, State> {
                                     <label>SPEED</label>
                                 </div>
                                 <div>
+                                    {/* FIXME: problem with inputs changing from controlled to uncontrolled */}
                                     <input
                                         onChange={(e) => this.onInputChange(e)}
                                         name={"position"}
@@ -105,8 +116,8 @@ class ServoControl extends React.Component<Props, State> {
                                 )}
                             </div>
                         </fieldset>
+                        {showDeleteButton && <button onClick={() => this.onDelete()} >X</button>}
                     </div>
-                </div>
             </>
         );
     }

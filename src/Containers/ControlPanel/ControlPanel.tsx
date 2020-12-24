@@ -3,9 +3,9 @@ import {DeviceToggler} from "../../Components/DeviceToggler/DeviceToggler";
 import ServoControl from "../../Components/ServoControl/ServoControl";
 
 import "./ControlPanel.style.scss";
-import {MediaService, MediaWSActions} from "../../services/MediaService";
+import {MediaService} from "../../services/MediaService";
 import {Media} from "../../Components/Media/Media";
-import ControlsService, {SequenceType, ServoData} from "../../services/ControlsService";
+import ControlsService, {CompleteServoData, Device, SequenceType, ServoData} from "../../services/ControlsService";
 import {SERVER} from "../../Settings/settings";
 import {UserService} from "../../services/UserService";
 import {IoT} from "../../App";
@@ -13,6 +13,7 @@ import Spinner from "../../Components/Spinner/Spinner";
 import {Modal} from "../../Components/Modal/Modal";
 import SeqPanel from "../../Components/SeqPanel/SeqPanel";
 import {InteractivePanel} from "../../Components/InteractivePanel/InteractivePanel";
+import {Form, FORM_TYPE} from "../../Components/Common/Form";
 
 export interface ControlPanelProps {
     controls: IoT;
@@ -20,13 +21,15 @@ export interface ControlPanelProps {
 }
 
 interface State {
-    servos: ServoData[];
+    servos: CompleteServoData[];
     seq: SequenceType[];
+    switches: Device[];
     busy: boolean;
     error?: string | null;
     showControlPad: boolean;
     showSequence: boolean;
     showAddSwitch: boolean;
+    showAddMotor: boolean;
 }
 
 export class ControlPanel extends React.Component<ControlPanelProps, State> {
@@ -42,29 +45,42 @@ export class ControlPanel extends React.Component<ControlPanelProps, State> {
         this.state = {
             servos: this.props.controls.servos,
             seq: this.props.controls.seq,
+            switches: this.props.controls.switches,
             busy: false,
             showControlPad: false,
             showSequence: false,
-            showAddSwitch: false
+            showAddSwitch: false,
+            showAddMotor: false
         }
     }
 
     public componentDidMount(): void {
-        this.controlsManager.start();
         MediaService.instance.init();
-        this.controlsManager.initializeServos(this.state.servos);
+        this.controlsManager.initializeControls(this.props.controls);
         this.controlsManager
             .addObserver("onBusyChange", this, (busy: boolean) => this.setState({busy}))
             .addObserver("notConnected", this, this.onError)
             .addObserver("onSequenceOver", this, this.onSequenceOver)
             .addObserver("onSequenceDelete", this, this.deleteSequence)
             .addObserver("onServoUpdate", this, this.onServoUpdate)
+            .addObserver("onDeviceUpdate", this, this.addDevice)
+            .addObserver("onServoListUpdate", this, this.onServoListChange)
             .addObserver("onSequenceAdded", this, this.addSequence);
+
+        this.controlsManager.start();
     }
 
     public componentWillUnmount() {
         this.controlsManager.disconnect();
         MediaService.instance.disconnect();
+    }
+
+    private addDevice(data: Device[]): void {
+        this.setState({switches: [...data]})
+    }
+
+    private onServoListChange(data: CompleteServoData[]): void {
+        this.setState({servos: [...data]})
     }
 
     private addSequence(entry: SequenceType): void {
@@ -109,6 +125,10 @@ export class ControlPanel extends React.Component<ControlPanelProps, State> {
         this.setState({servos: updated})
     }
 
+    private onFormClose(): void {
+        this.setState({showAddSwitch: false, showAddMotor: false})
+    }
+
     private onModalClose(): void {
         this.setState({
             error: null
@@ -121,8 +141,7 @@ export class ControlPanel extends React.Component<ControlPanelProps, State> {
     }
 
     private renderSwitches(): React.ReactNode {
-        const {switches} = this.props.controls;
-        return switches.map((item, i) => <DeviceToggler
+        return this.state.switches.map((item, i) => <DeviceToggler
             key={item.name + i}
             device={item}
             controlsManager={this.controlsManager} />)
@@ -130,7 +149,7 @@ export class ControlPanel extends React.Component<ControlPanelProps, State> {
 
     render() {
 
-        const {busy, servos, error, showControlPad, showSequence, showAddSwitch} = this.state;
+        const {busy, servos, error, showControlPad, showSequence, showAddSwitch, showAddMotor} = this.state;
 
         const allServoMotors = servos.map(
             (servo, index): JSX.Element => {
@@ -159,12 +178,12 @@ export class ControlPanel extends React.Component<ControlPanelProps, State> {
                 <section className={"top-grid"}>
                     {this.renderSwitches()}
                     <button onClick={() => this.setState({showAddSwitch: true})}>Add</button>
-                    {showAddSwitch && <Modal title={"Add Device"} click={() => this.setState({showAddSwitch: false})}/>}
                 </section>
                 <div className={"main-grid"}>
                     {mainWindow}
                     <div className={"motor-controls"}>
                         {allServoMotors}
+                        <button onClick={() => this.setState({showAddMotor: true})}>Add motor</button>
                         <button className={"large"} onClick={() => this.showPad()}>{showControlPad ? "SHOW MEDIA" : "SHOW CONTROL PAD"}</button>
                     </div>
                 </div>
@@ -179,7 +198,15 @@ export class ControlPanel extends React.Component<ControlPanelProps, State> {
                         title={error}
                     />
                 )}
-                <button onClick={() => MediaService.instance.broadcast(MediaWSActions.GetPicture)}>Get Pic</button>
+                {/*<button onClick={() => MediaService.instance.broadcast(MediaWSActions.GetPicture)}>Get Pic</button>*/}
+                {showAddSwitch && <Form
+                    type={FORM_TYPE.Device}
+                    onClose={() => this.onFormClose()}
+                    controlManager={this.controlsManager}/>}
+                {showAddMotor && <Form
+                    type={FORM_TYPE.ServoMotor}
+                    controlManager={this.controlsManager}
+                    onClose={() => this.onFormClose()} />}
             </div>
         );
     }

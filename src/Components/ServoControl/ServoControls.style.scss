@@ -1,6 +1,13 @@
-.single-servo-grid {
-  //display: grid;
-  //grid-template-columns: 1fr 2fr;
+.servo-container {
+  position: relative;
+  > button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+  }
 }
 
 .wrapper{

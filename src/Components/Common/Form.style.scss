@@ -1,0 +1,32 @@
+.form-wrapper {
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.7);
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-y: hidden;
+  z-index: 100;
+  text-transform: uppercase;
+
+  >div {
+    width: 30%;
+    height: 50%;
+    background-color: white;
+    text-align: center;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-column-gap: 20px;
+    justify-content: center;
+    align-content: space-around;
+    height: 80%;
+    margin: 20px;
+    box-sizing: border-box;
+  }
+}

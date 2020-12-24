@@ -2,15 +2,16 @@ import React from "react";
 import Switch from "@material-ui/core/Switch";
 
 import "./DeviceToggler.scss"
-import ControlsService, {_Switch} from "../../services/ControlsService";
+import ControlsService, {Device} from "../../services/ControlsService";
 
 interface Props {
   controlsManager: ControlsService,
-  device: _Switch
+  device: Device
 }
 
 interface State {
-  isOn: boolean
+  isOn: boolean;
+  showDelete: boolean;
 }
 
 export class DeviceToggler extends React.Component<Props, State> {
@@ -19,7 +20,9 @@ export class DeviceToggler extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      isOn: props.device.state
+      isOn: props.device.state,
+      showDelete: false
+
     }
   }
 
@@ -34,16 +37,24 @@ export class DeviceToggler extends React.Component<Props, State> {
     this.setState({isOn: !this.state.isOn});
   }
 
+  private delete(): Promise<void> {
+    return this.props.controlsManager.deleteDevice(this.props.device.name);
+  }
+
   render() {
-    const {isOn} = this.state;
+    const {isOn, showDelete} = this.state;
     const {name} = this.props.device;
     return (
-      <div className={"switch"}>
+      <div
+          className={"switch"}
+          onMouseLeave={() => this.setState({showDelete: false})}
+          onMouseEnter={() => this.setState({showDelete: true})}>
           <h3>{name}</h3>
           <Switch
             checked={isOn}
             onChange={() => this.onToggle()}
           />
+        {showDelete && <button onClick = {() => this.delete()}>X</button>}
       </div>
     );
   }

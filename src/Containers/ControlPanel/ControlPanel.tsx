@@ -26,6 +26,7 @@ interface State {
     error?: string | null;
     showControlPad: boolean;
     showSequence: boolean;
+    showAddSwitch: boolean;
 }
 
 export class ControlPanel extends React.Component<ControlPanelProps, State> {
@@ -43,7 +44,8 @@ export class ControlPanel extends React.Component<ControlPanelProps, State> {
             seq: this.props.controls.seq,
             busy: false,
             showControlPad: false,
-            showSequence: false
+            showSequence: false,
+            showAddSwitch: false
         }
     }
 
@@ -128,7 +130,7 @@ export class ControlPanel extends React.Component<ControlPanelProps, State> {
 
     render() {
 
-        const {busy, servos, error, showControlPad, showSequence} = this.state;
+        const {busy, servos, error, showControlPad, showSequence, showAddSwitch} = this.state;
 
         const allServoMotors = servos.map(
             (servo, index): JSX.Element => {
@@ -156,6 +158,8 @@ export class ControlPanel extends React.Component<ControlPanelProps, State> {
 
                 <section className={"top-grid"}>
                     {this.renderSwitches()}
+                    <button onClick={() => this.setState({showAddSwitch: true})}>Add</button>
+                    {showAddSwitch && <Modal title={"Add Device"} click={() => this.setState({showAddSwitch: false})}/>}
                 </section>
                 <div className={"main-grid"}>
                     {mainWindow}

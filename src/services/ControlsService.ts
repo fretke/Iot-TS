@@ -74,6 +74,10 @@ export default class ControlsService extends EventManager<ControlServiceEvents> 
         this.iD = id;
     }
 
+    public get servoMap(): Map<string, Servo> {
+        return this.servoList;
+    }
+
     public start(): void {
         const actionHandlers : ControlServiceWsEvents = {
             onDeviceToggle: () => this.dispatchEvent("onDeviceToggle"),
@@ -136,7 +140,12 @@ export default class ControlsService extends EventManager<ControlServiceEvents> 
     }
 
     public async toggleDevice(name: string, status: boolean): Promise<void> {
+        await this.restApi.sendRequest("/updateDevice", {userEmail: this.userEmail, name, status})
         this.wsServer.sendRequest(OutgoingEvents.updateDevice, {name, status});
+    }
+
+    public async addDevice(): Promise<void> {
+        await this.restApi.sendRequest("/addDevice", {email: this.userEmail});
     }
 
     public initializeServos(data: ServoData[]): void {
@@ -162,17 +171,20 @@ export default class ControlsService extends EventManager<ControlServiceEvents> 
 }
 
 export class Servo {
-    private readonly name: string;
+    private readonly _name: string;
     private _position: number;
     private _speed: number;
 
 
     constructor(name: string, position: number, speed: number) {
-        this.name = name;
+        this._name = name;
         this._position = position;
         this._speed = speed;
     }
 
+    get name(): string {
+        return this._name;
+    }
 
     get position(): number {
         return this._position;

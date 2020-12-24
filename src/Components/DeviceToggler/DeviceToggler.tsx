@@ -29,16 +29,17 @@ export class DeviceToggler extends React.Component<Props, State> {
     })
   }
 
-  public onToggle(): void {
-    this.props.controlsManager.toggleDevice(this.props.device.name, !this.state.isOn);
+  public async onToggle(): Promise<void> {
+    await this.props.controlsManager.toggleDevice(this.props.device.name, !this.state.isOn);
     this.setState({isOn: !this.state.isOn});
   }
 
   render() {
     const {isOn} = this.state;
+    const {name} = this.props.device;
     return (
       <div className={"switch"}>
-          <h3>LED</h3>
+          <h3>{name}</h3>
           <Switch
             checked={isOn}
             onChange={() => this.onToggle()}

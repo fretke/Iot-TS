@@ -6,6 +6,7 @@ import Alert from "@material-ui/lab/Alert";
 interface ModalProps {
   title: string;
   click(): any;
+
 }
 
 export const Modal = (props: ModalProps) => {

@@ -31,16 +31,17 @@ export interface _Switch {
 export enum OutgoingEvents {
     updateDevice = "updateDevice",
     updateServo = "updateServo",
+    addServo = "addServo",
+    deleteServo = "deleteServo",
     liveControl = "liveControl",
-    executeSequence = "executeSequence"
+    executeSequence = "executeSequence",
+    addDevice = "addDevice",
+    deleteDevice = "deleteDevice"
 }
 
 export enum IncomingEvents {
     connect = "connect",
-    // onDeviceToggle = "onDeviceToggle",
     onServoUpdate = "onServoUpdate",
-    // onUpdateStarted = "onUpdateStarted",
-    // onUpdateFinished = "onUpdateFinished",
     onBusyChange = "onBusyChange",
     notConnected = "notConnected",
     onSequenceOver = "onSequenceOver"
@@ -160,12 +161,14 @@ export default class ControlsService extends EventManager<ControlServiceEvents> 
     public async addDevice(device: _Switch): Promise<void> {
         await this.restApi.sendRequest("/addDevice", {email: this.userEmail, device});
         this.switchMap.set(device.name, new Device(device.name, device.pin, device.state));
+        this.wsServer.sendRequest(OutgoingEvents.addDevice, device)
         this.dispatchEvent("onDeviceUpdate", Array.from(this.switchMap.values()));
     }
 
     public async deleteDevice(name: string): Promise<void> {
         await this.restApi.sendRequest("/deleteDevice", {email: this.userEmail, name});
         this.switchMap.delete(name);
+        this.wsServer.sendRequest(OutgoingEvents.deleteDevice, {name})
         this.dispatchEvent("onDeviceUpdate", Array.from(this.switchMap.values()));
     }
 
@@ -173,12 +176,14 @@ export default class ControlsService extends EventManager<ControlServiceEvents> 
         const {name, pin, pos, speed} = servo
         await this.restApi.sendRequest("/addServo", {email: this.userEmail, servo})
         this.servoList.set(servo.name, new Servo(name, pos, speed, pin));
+        this.wsServer.sendRequest(OutgoingEvents.addServo, {name, pin});
         this.dispatchEvent("onServoListUpdate", Array.from(this.servoList.values()));
     }
 
     public async deleteServo(name: string): Promise<void> {
         await this.restApi.sendRequest("/deleteServo", {email: this.userEmail, name})
         this.servoList.delete(name);
+        this.wsServer.sendRequest(OutgoingEvents.deleteServo, {name});
         this.dispatchEvent("onServoListUpdate", Array.from(this.servoList.values()));
     }
 
@@ -204,10 +209,8 @@ export default class ControlsService extends EventManager<ControlServiceEvents> 
 
     public getFreePins(): string[] {
         const first = Array.from(this.switchList.values()).map((item) => item.pin);
-        const second = Array.from(this.servoList.values()).map((item) => item.pin);
+        const second = Array.from(this.servoList.values()).map((item) => item._pin);
         const occupied = [...first, ...second];
-        console.log(first, "first");
-        console.log(second, "second");
 
         return AVAILABLE_PINS.filter((pin) => occupied.indexOf(pin) === -1);
 
@@ -217,8 +220,8 @@ export default class ControlsService extends EventManager<ControlServiceEvents> 
         const {name, pos, speed} = data;
         const servo = this.servoList.get(name);
         if (servo) {
-                servo.position = pos;
-                servo.speed = speed;
+                servo._position = pos;
+                servo._speed = speed;
         }
         return this;
     }
@@ -230,45 +233,45 @@ export default class ControlsService extends EventManager<ControlServiceEvents> 
 }
 
 export class Servo {
-    private readonly _name: string;
-    private _position: number;
-    private _speed: number;
-    private _pin: string;
+    private readonly name: string;
+    private pos: number;
+    private speed: number;
+    private pin: string;
 
 
     constructor(name: string, position: number, speed: number, pin: string) {
-        this._name = name;
-        this._position = position;
-        this._speed = speed;
-        this._pin = pin;
+        this.name = name;
+        this.pos = position;
+        this.speed = speed;
+        this.pin = pin;
     }
 
-    get name(): string {
-        return this._name;
+    get _name(): string {
+        return this.name;
     }
 
-    get position(): number {
-        return this._position;
+    get _position(): number {
+        return this.pos;
     }
 
-    set position(value: number) {
-        this._position = value;
+    set _position(value: number) {
+        this.pos = value;
     }
 
-    get speed(): number {
-        return this._speed;
+    get _speed(): number {
+        return this.speed;
     }
 
-    set speed(value: number) {
-        this._speed = value;
+    set _speed(value: number) {
+        this.speed = value;
     }
 
-    get pin(): string {
-        return this._pin;
+    get _pin(): string {
+        return this.pin;
     }
 
-    set pin(value: string) {
-        this._pin = value;
+    set _pin(value: string) {
+        this.pin = value;
     }
 }
 

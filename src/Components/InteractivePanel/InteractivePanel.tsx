@@ -26,8 +26,8 @@ export class InteractivePanel extends React.Component<Props, State> {
         super(props);
         const arr = Array.from(this.props.controlsManager.servoMap.values());
         this.names = {
-            firstMotor: arr[0].name,
-            secondMotor: arr[1].name
+            firstMotor: arr[0]._name,
+            secondMotor: arr[1]._name
         }
         this.state = {
             xPos: 0,

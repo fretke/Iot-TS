@@ -64,11 +64,11 @@ class ServoControl extends React.Component<Props, State> {
             : this.setState({speed: +value});
     }
 
-    private onMoveHandler (): void {
+    private onMoveHandler (): Promise<void> {
         const {speed, pos} = this.state;
         const {controlsManager, name} = this.props;
 
-        controlsManager.moveServo({name, speed, pos});
+        return controlsManager.moveServo({name, speed, pos});
     }
 
     private onDelete (): Promise<void> {
@@ -79,7 +79,6 @@ class ServoControl extends React.Component<Props, State> {
         const {pos, speed, seqCreation, showDeleteButton} = this.state;
         const {name} = this.props;
 
-        console.log(name, "servoName", pos, "servo pos");
         return (
             <>
                     <div
@@ -94,7 +93,6 @@ class ServoControl extends React.Component<Props, State> {
                                     <label>SPEED</label>
                                 </div>
                                 <div>
-                                    {/* FIXME: problem with inputs changing from controlled to uncontrolled */}
                                     <input
                                         onChange={(e) => this.onInputChange(e)}
                                         name={"position"}

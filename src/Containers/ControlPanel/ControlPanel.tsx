@@ -153,10 +153,12 @@ export class ControlPanel extends React.Component<ControlPanelProps, State> {
 
         const allServoMotors = servos.map(
             (servo, index): JSX.Element => {
+                // console.log(servo.pos, "position of " + servo.name);
+                // console.log(servo, "servo");
                 return (
                     <ServoControl
                         controlsManager={this.controlsManager}
-                        key={index}
+                        key={servo.name + index}
                         name={servo.name}
                         currentPos={servo.pos}
                         currentSpeed={servo.speed}

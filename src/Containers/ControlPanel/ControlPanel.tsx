@@ -1,7 +1,6 @@
 import React from "react";
 import {DeviceToggler} from "../../Components/DeviceToggler/DeviceToggler";
 import ServoControl from "../../Components/ServoControl/ServoControl";
-
 import "./ControlPanel.style.scss";
 import {MediaService} from "../../services/MediaService";
 import {Media} from "../../Components/Media/Media";
@@ -153,8 +152,6 @@ export class ControlPanel extends React.Component<ControlPanelProps, State> {
 
         const allServoMotors = servos.map(
             (servo, index): JSX.Element => {
-                // console.log(servo.pos, "position of " + servo.name);
-                // console.log(servo, "servo");
                 return (
                     <ServoControl
                         controlsManager={this.controlsManager}
@@ -200,7 +197,6 @@ export class ControlPanel extends React.Component<ControlPanelProps, State> {
                         title={error}
                     />
                 )}
-                {/*<button onClick={() => MediaService.instance.broadcast(MediaWSActions.GetPicture)}>Get Pic</button>*/}
                 {showAddSwitch && <Form
                     type={FORM_TYPE.Device}
                     onClose={() => this.onFormClose()}

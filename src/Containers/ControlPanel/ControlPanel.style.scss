@@ -124,10 +124,31 @@ button {
     height: 40px;
     margin: 0 auto;
   }
+
+  &.success {
+    background-color: transparent;
+    color: #2DBF64;
+    border: .5px solid #2DBF64;
+    &:hover{
+      background-color: #2DBF64;
+      color: white;
+    }
+  }
+  &.danger {
+    background-color: transparent;
+    color: #ED5650;
+    border: .5px solid #ED5650;
+    &:hover{
+      background-color: #ED5650;
+      color: white;
+    }
+  }
 }
 
-.bottom-grid{
-  .sequence{
+h1 {
+  font-size: 1.6rem;
+}
 
-  }
+h2 {
+  font-size: 1.2rem;
 }

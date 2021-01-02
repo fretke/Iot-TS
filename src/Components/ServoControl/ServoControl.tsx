@@ -5,6 +5,7 @@ import SaveIcon from "@material-ui/icons/Save";
 
 import "./ServoControls.style.scss";
 import ControlsService, {ServoData} from "../../services/ControlsService";
+import {NotificationService} from "../../services/NotificationService";
 
 interface Props {
     controlsManager: ControlsService
@@ -59,9 +60,19 @@ class ServoControl extends React.Component<Props, State> {
 
     private onInputChange (e: ChangeEvent<HTMLInputElement>): void {
         const {name, value} = e.target;
-        name === "position"
-            ? this.setState({pos: +value})
-            : this.setState({speed: +value});
+        if (name === "position") {
+            if (+value > 180 || +value < 0) {
+                NotificationService.warn("Position values must be from 0 to 180");
+                return;
+            }
+            this.setState({pos: +value})
+        } else {
+            if (+value > 100|| +value < 0) {
+                NotificationService.warn("Speed values must be from 0 to 100");
+                return;
+            }
+            this.setState({speed: +value});
+        }
     }
 
     private onMoveHandler (): Promise<void> {

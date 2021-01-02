@@ -6,8 +6,9 @@ import Cookies from "universal-cookie";
 import {UserService} from "./services/UserService";
 import {SERVER} from "./Settings/settings";
 import {RestApi} from "./services/RestApi";
-import {Modal} from "./Components/Modal/Modal";
 import {SequenceType, ServoData, _Switch, CompleteServoData} from "./services/ControlsService";
+import {Notification} from "./Components/Common/Notification";
+import {NotificationService} from "./services/NotificationService";
 
 interface Props {
 }
@@ -15,7 +16,6 @@ interface Props {
 interface State {
   isAuth: boolean;
   servos: ServoData[];
-  error: string | null;
 }
 
 export interface IoT {
@@ -38,7 +38,6 @@ class App extends React.Component<Props, State> {
     this.state = {
       isAuth: false,
       servos: [],
-      error: null
     }
 
     this.client = new UserService(new RestApi(SERVER));
@@ -48,7 +47,7 @@ class App extends React.Component<Props, State> {
   componentDidMount() {
     this.client
         .addObserver("onLoggedIn", this, this.onLoggedIn.bind(this))
-        .addObserver("onError", this, (message: string) => this.setState({error: message}));
+        .addObserver("onError", this, (message: string) => NotificationService.error(message));
     if (cookie.get("user")) {
       this.client.logIn(cookie.get("user"));
     }
@@ -65,28 +64,19 @@ class App extends React.Component<Props, State> {
     this.client.removeObserver(this);
   }
 
-  private onModalClose(): void {
-    this.setState({error: null})
-  }
-
-  render() {
-    const { isAuth, error } = this.state;
+  public render(): React.ReactNode {
+    const { isAuth } = this.state;
     if (cookie.get("user") && !isAuth) return <Spinner/>;
-    return isAuth ? (
-      this.controls && <ControlPanel
-          controls={this.controls}
-          client={this.client}/>
-    ) : (
-      <React.Fragment>
-        <LogIn client={this.client}/>
-        {error && (
-          <Modal
-            click={() => this.onModalClose()}
-            title={error}
-          />
-        )}
-      </React.Fragment>
-    );
+    return (
+        <>
+          <Notification />
+          {isAuth ? (
+              this.controls && <ControlPanel
+                  controls={this.controls}
+                  client={this.client}/>
+          ) : <LogIn client={this.client}/>}
+        </>
+    )
   }
 }
 

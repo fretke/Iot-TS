@@ -1,6 +1,7 @@
 import React, {ChangeEvent} from "react";
 import "./Form.style.scss";
 import ControlsService from "../../services/ControlsService";
+import {NotificationService} from "../../services/NotificationService";
 
 export enum FORM_TYPE {
     Device,
@@ -17,11 +18,12 @@ interface State {
     name: string,
     pin: string,
     state?: boolean
+    error?: string
 }
 
 export class Form extends React.Component<Props, State> {
 
-    private readonly availablePins: string[] = this.props.controlManager.getFreePins();
+    private readonly availablePins: string[] = ["", ...this.props.controlManager.getFreePins()];
 
     public constructor(props: Props) {
         super(props);
@@ -44,14 +46,31 @@ export class Form extends React.Component<Props, State> {
         }
     }
 
-    private addDevice(): Promise<void> {
+    private async addDevice(): Promise<void> {
         const {name, pin} = this.state;
         const {type} = this.props;
-        if (type === FORM_TYPE.Device) {
-            return this.props.controlManager.addDevice({name, pin, state: false});
-        } else {
-            return this.props.controlManager.addServo({name, pin, pos: 90, speed: 50});
+        try {
+            if (!pin) {
+                NotificationService.warn("You must select pin number!");
+                return;
+
+            } else if (!name || Array.from(this.props.controlManager.switchMap.keys()).find((item) => item === name)){
+                NotificationService.warn("Names have to be unique!");
+                return;
+            }
+            if (type === FORM_TYPE.Device) {
+                await this.props.controlManager.addDevice({name, pin, state: false});
+            } else {
+                await this.props.controlManager.addServo({name, pin, pos: 90, speed: 50});
+            }
+            this.props.onClose();
+        } catch (e) {
+
         }
+    }
+
+    private cancel(): void {
+        this.props.onClose();
     }
 
     public render(): React.ReactNode {
@@ -60,7 +79,7 @@ export class Form extends React.Component<Props, State> {
         return (
             <div className={"form-wrapper"}>
                 <div>
-                    {type === FORM_TYPE.Device ? "Add Device" : "Add Servo Motor"}
+                    <h1 className={"title"}>{type === FORM_TYPE.Device ? "Add Device" : "Add Servo Motor"}</h1>
                     <div className={"grid"}>
                         <div>name</div>
                         <input name={"name"} value={name} onChange={(e) => this.updateState(e)}/>
@@ -68,9 +87,10 @@ export class Form extends React.Component<Props, State> {
                         <select name={"pin"} value={pin} onChange={(e) => this.updateState(e)}>
                             {this.renderOptions()}
                         </select>
-                        <button onClick={() => this.addDevice().then(() => onClose())}>add</button>
-                        <button onClick={() => onClose()}>cancel</button>
+                        <button className={"success"} onClick={() => this.addDevice()}>add</button>
+                        <button className={"danger"} onClick={() => this.cancel()}>cancel</button>
                     </div>
+                    <button onClick={() => onClose()} className={"cross"}>X</button>
                 </div>
             </div>
         )

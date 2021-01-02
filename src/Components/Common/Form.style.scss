@@ -13,10 +13,18 @@
   text-transform: uppercase;
 
   >div {
+    position: relative;
     width: 30%;
     height: 50%;
+    border-radius: 10px;
     background-color: white;
     text-align: center;
+    .cross {
+      position: absolute;
+      border-radius: 0 10px 0 0;
+      top: 0;
+      right: 0;
+    }
   }
 
   .grid {
@@ -25,8 +33,27 @@
     grid-column-gap: 20px;
     justify-content: center;
     align-content: space-around;
+    align-items: center;
     height: 80%;
     margin: 20px;
     box-sizing: border-box;
+
+    input{
+      height: 30px;
+    }
+
+    select{
+      height: 30px;
+      &:hover{
+        cursor: pointer;
+      }
+    }
+
+    button {
+      width: 50%;
+      margin: 0 auto;
+      height: 30px;
+      text-transform: uppercase;
+    }
   }
 }

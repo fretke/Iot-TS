@@ -77,8 +77,8 @@ export class Form extends React.Component<Props, State> {
         const {type, onClose} = this.props;
         const {name, pin} = this.state;
         return (
-            <div className={"form-wrapper"}>
-                <div>
+            <div onClick={() => onClose()} className={"form-wrapper"}>
+                <div onClick={(e) => e.stopPropagation()}>
                     <h1 className={"title"}>{type === FORM_TYPE.Device ? "Add Device" : "Add Servo Motor"}</h1>
                     <div className={"grid"}>
                         <div>name</div>

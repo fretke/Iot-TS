@@ -54,7 +54,7 @@ export class ControlPanel extends React.Component<ControlPanelProps, State> {
     }
 
     public componentDidMount(): void {
-        MediaService.instance.init();
+        // MediaService.instance.init();
         this.controlsManager.initializeControls(this.props.controls);
         this.controlsManager
             .addObserver("onBusyChange", this, (busy: boolean) => this.setState({busy}))

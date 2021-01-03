@@ -60,6 +60,7 @@ class ServoControl extends React.Component<Props, State> {
 
     private onInputChange (e: ChangeEvent<HTMLInputElement>): void {
         const {name, value} = e.target;
+        if (value.match(/[^0-9]/)) return;
         if (name === "position") {
             if (+value > 180 || +value < 0) {
                 NotificationService.warn("Position values must be from 0 to 180");
